@@ -5,6 +5,7 @@ from typing import Union
 import aiosqlite
 
 from . import albums
+from . import photos
 
 
 class DigikamBase:
@@ -16,7 +17,25 @@ class DigikamBase:
 
     async def albums(self):
         async with self.connect_main_db() as db:
-            return await albums.get_all(db)
+            return await albums.all(db)
+
+    async def album(self, album_id: str):
+        try:
+            album_id = int(album_id)
+        except ValueError:
+            # Digikam albums use integer ids
+            return None
+        async with self.connect_main_db() as db:
+            return await albums.get(db, album_id)
+
+    async def photo(self, photo_id: str):
+        try:
+            photo_id = int(photo_id)
+        except ValueError:
+            # Digikam albums use integer ids
+            return None
+        async with self.connect_main_db() as db:
+            return await photos.get(db, photo_id)
 
 
 class DigikamMySQL(DigikamBase):
