@@ -29,8 +29,8 @@ class PhotoFull(PhotoShort):
 
     image_url: str
     captions: List[Caption]
-    prev: str
-    next: str
+    prev: Optional[str]
+    next: Optional[str]
     # TODO: Exif info
     # TODO: tags
     # TODO: copyright

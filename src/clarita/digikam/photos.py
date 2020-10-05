@@ -8,7 +8,8 @@ async def get(db, photo_id: int):
     cursor = await db.execute(
         """
 SELECT i.id,
-       i.name
+       i.name,
+       info.creationDate
 FROM Images i
 JOIN ImageInformation info ON i.id=info.imageid
 WHERE i.id=?
@@ -16,9 +17,12 @@ WHERE i.id=?
         """,
         (photo_id,),
     )
-    photorow = await cursor.fetchone()
-    if photorow is None:
+    row = await cursor.fetchone()
+    if row is None:
         return None
+
+    name = row[1]
+    date = row[2]
 
     # retrieve captions (ImageComments table)
     # there can be multiple captions, on different languages
@@ -43,14 +47,45 @@ WHERE imageid=?
         # TODO: normalize other languages to ISO 639-1
         captions.append(caption)
 
+    # find previous and next photos by date
+    cursor = await db.execute(
+        """
+SELECT i.id
+FROM Images i
+JOIN ImageInformation info ON i.id=info.imageid
+WHERE info.creationDate<?
+  AND info.format='JPG'
+ORDER BY info.creationDate DESC
+LIMIT 1
+        """,
+        (date,),
+    )
+    row = await cursor.fetchone()
+    prev_id = row[0] if row is not None else None
+
+    cursor = await db.execute(
+        """
+SELECT i.id
+FROM Images i
+JOIN ImageInformation info ON i.id=info.imageid
+WHERE info.creationDate>?
+  AND info.format='JPG'
+ORDER BY info.creationDate ASC
+LIMIT 1
+        """,
+        (date,),
+    )
+    row = await cursor.fetchone()
+    next_id = row[0] if row is not None else None
+
     await cursor.close()
 
     return PhotoFull(
-        id=photorow[0],
-        name=photorow[1],
+        id=photo_id,
+        name=name,
         captions=captions,
         thumb_url="https://lorempixel.com/120/120/",
         image_url="https://lorempixel.com/3000/2000/",
-        prev="",
-        next="",
+        prev=prev_id,
+        next=next_id,
     )
