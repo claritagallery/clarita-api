@@ -4,12 +4,13 @@
 
     $ pipenv install
 
-Clarita should work on Python 3.6 or later, but it has been most tested on Python 3.8.
+Clarita should work on Python 3.7 or later, but it has been most tested on Python 3.8.
 
 ## Development
 
-    $ cd src
-    $ uvicorn main:app --reload
+    $ pipenv install --dev
+    $ cd src/clarita
+    $ pipenv run uvicorn main:app --reload
 
 ## Changelog
 
