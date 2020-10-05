@@ -11,7 +11,7 @@ SELECT id,
        relativePath,
        date
 FROM Albums
-ORDER BY id
+ORDER BY date DESC
         """
     )
     albums = []
