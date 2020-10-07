@@ -90,3 +90,97 @@ LIMIT 1
         prev=prev_id,
         next=next_id,
     )
+
+
+async def get_in_album(db, album_id: int, photo_id: int):
+    cursor = await db.execute(
+        """
+SELECT i.id,
+       i.name,
+       info.creationDate
+FROM Images i
+JOIN Albums a ON a.id=i.album
+JOIN ImageInformation info ON i.id=info.imageid
+WHERE i.id=?
+  AND a.id=?
+  AND info.format='JPG'
+        """,
+        (photo_id, album_id),
+    )
+    row = await cursor.fetchone()
+    if row is None:
+        return None
+
+    name = row[1]
+    date = row[2]
+
+    # retrieve captions (ImageComments table)
+    # there can be multiple captions, on different languages
+    # default language ("x-default") will be passed as null
+    cursor = await db.execute(
+        """
+SELECT language,
+       comment
+FROM ImageComments
+WHERE imageid=?
+        """,
+        (photo_id,),
+    )
+    captions = []
+    for r in await cursor.fetchall():
+        caption = Caption(language=r[0], text=r[1].strip())
+        if not caption.text:
+            # there can be empty texts in the Digikam DB, ignore them
+            continue
+        if caption.language == DIGIKAM_DEFAULT_LANGUAGE:
+            caption.language = None
+        # TODO: normalize other languages to ISO 639-1
+        captions.append(caption)
+
+    # find previous and next photos by date
+    cursor = await db.execute(
+        """
+SELECT i.id
+FROM Images i
+JOIN Albums a ON i.album=a.id
+JOIN ImageInformation info ON i.id=info.imageid
+WHERE a.id=?
+  AND info.creationDate<?
+  AND info.format='JPG'
+ORDER BY info.creationDate DESC
+LIMIT 1
+        """,
+        (album_id, date),
+    )
+    row = await cursor.fetchone()
+    prev_id = row[0] if row is not None else None
+
+    cursor = await db.execute(
+        """
+SELECT i.id
+FROM Images i
+JOIN Albums a ON i.album=a.id
+JOIN ImageInformation info ON i.id=info.imageid
+WHERE a.id=?
+  AND info.creationDate>?
+  AND info.format='JPG'
+ORDER BY info.creationDate ASC
+LIMIT 1
+        """,
+        (album_id, date),
+    )
+    row = await cursor.fetchone()
+    next_id = row[0] if row is not None else None
+
+    await cursor.close()
+
+    return PhotoFull(
+        id=photo_id,
+        filename=name,
+        name=name,
+        captions=captions,
+        thumb_url="https://lorempixel.com/120/120/",
+        image_url="https://lorempixel.com/3000/2000/",
+        prev=prev_id,
+        next=next_id,
+    )

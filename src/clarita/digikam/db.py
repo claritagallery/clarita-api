@@ -37,6 +37,20 @@ class DigikamBase:
         async with self.connect_main_db() as db:
             return await photos.get(db, photo_id)
 
+    async def photo_in_album(self, album_id: str, photo_id: str):
+        try:
+            album_id = int(album_id)
+        except ValueError:
+            # Digikam albums use integer ids
+            return None
+        try:
+            photo_id = int(photo_id)
+        except ValueError:
+            # Digikam photos use integer ids
+            return None
+        async with self.connect_main_db() as db:
+            return await photos.get_in_album(db, album_id, photo_id)
+
 
 class DigikamMySQL(DigikamBase):
     def connect_main_db(self):
