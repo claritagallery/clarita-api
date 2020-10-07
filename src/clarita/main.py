@@ -1,8 +1,20 @@
 from digikam import DigikamSQLite
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+
+ORIGINS = ["http://localhost:5000"]
 
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 digikam = DigikamSQLite("/home/fidel/digikam_data/")
 
 
