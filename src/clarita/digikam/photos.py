@@ -86,7 +86,7 @@ LIMIT 1
         name=name,
         captions=captions,
         thumb_url="https://lorempixel.com/120/120/",
-        image_url="https://lorempixel.com/3000/2000/",
+        image_url="https://lorempixel.com/1200/800/",
         prev=prev_id,
         next=next_id,
     )
