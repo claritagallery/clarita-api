@@ -62,7 +62,9 @@ WHERE i.album=?
     photos = []
     async for row in rows:
         photos.append(
-            PhotoShort(id=row[0], name=row[1], thumb_url="https://lorempixel.com/120/120/")
+            PhotoShort(
+                id=row[0], filename=row[1], name=row[1], thumb_url="https://lorempixel.com/120/120/"
+            )
         )
     album = AlbumFull(
         id=albumrow[0],

@@ -20,6 +20,7 @@ class PhotoShort(BaseModel):
     """Photo to be used in list views, with just basic details"""
 
     id: str
+    filename: str
     name: str
     thumb_url: str
 

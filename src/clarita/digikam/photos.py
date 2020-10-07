@@ -82,6 +82,7 @@ LIMIT 1
 
     return PhotoFull(
         id=photo_id,
+        filename=name,
         name=name,
         captions=captions,
         thumb_url="https://lorempixel.com/120/120/",
