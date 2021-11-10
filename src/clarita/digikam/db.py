@@ -4,8 +4,7 @@ from typing import Union
 
 import aiosqlite
 
-from . import albums
-from . import photos
+from . import albums, photos
 
 
 class DigikamBase:

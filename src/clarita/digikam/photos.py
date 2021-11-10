@@ -1,7 +1,6 @@
-from models import Caption
-from models import PhotoFull
+from models import Caption, PhotoFull
 
-DIGIKAM_DEFAULT_LANGUAGE = 'x-default'
+DIGIKAM_DEFAULT_LANGUAGE = "x-default"
 
 
 async def get(db, photo_id: int):

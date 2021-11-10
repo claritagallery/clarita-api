@@ -2,7 +2,6 @@ from digikam import DigikamSQLite
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-
 ORIGINS = ["http://localhost:5000"]
 
 
