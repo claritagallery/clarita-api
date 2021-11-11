@@ -1,5 +1,9 @@
 # Clarita API backend
 
+This is an API for the Clarita Web Gallery.
+
+See the Clarita React Frontend for a consumer of this API.
+
 ## Install
 
     $ pipenv install
@@ -9,8 +13,8 @@ Clarita should work on Python 3.7 or later, but it has been most tested on Pytho
 ## Development
 
     $ pipenv install --dev
-    $ cd src/clarita
-    $ pipenv run uvicorn main:app --reload
+    $ cd src
+    $ pipenv run uvicorn clarita.main:app --reload
 
 ## Changelog
 
