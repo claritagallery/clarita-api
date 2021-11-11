@@ -8,6 +8,7 @@ from pydantic import BaseModel
 
 class ListResponse(BaseModel):
     """Generic response for a list with limit and offset"""
+
     next: Optional[int]
     total: int
 
@@ -61,4 +62,5 @@ class AlbumFull(AlbumShort):
 
 class AlbumList(ListResponse):
     """Response for a list of albums"""
+
     results: List[AlbumShort]

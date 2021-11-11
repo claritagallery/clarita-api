@@ -22,7 +22,9 @@ digikam = DigikamSQLite("/home/fidel/digikam_data/")
 
 
 @app.get("/api/v1/albums")
-async def albums(limit: Optional[int] = 20, offset: Optional[int] = 0) -> models.AlbumList:
+async def albums(
+    limit: Optional[int] = 20, offset: Optional[int] = 0
+) -> models.AlbumList:
     return await digikam.albums(limit, offset)
 
 
