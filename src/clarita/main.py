@@ -1,6 +1,10 @@
-from digikam import DigikamSQLite
+from typing import Optional
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+from . import models
+from .digikam import DigikamSQLite
 
 ORIGINS = ["http://localhost:5000"]
 
@@ -18,13 +22,12 @@ digikam = DigikamSQLite("/home/fidel/digikam_data/")
 
 
 @app.get("/api/v1/albums")
-async def albums():
-    albums = await digikam.albums()
-    return {"albums": albums}
+async def albums(limit: Optional[int] = 20, offset: Optional[int] = 0) -> models.AlbumList:
+    return await digikam.albums(limit, offset)
 
 
 @app.get("/api/v1/album/{album_id}")
-async def album(album_id: int):
+async def album(album_id: int) -> models.AlbumFull:
     return await digikam.album(album_id)
 
 

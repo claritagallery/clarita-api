@@ -1,7 +1,15 @@
+from __future__ import annotations
+
 from datetime import date
 from typing import List, Optional
 
 from pydantic import BaseModel
+
+
+class ListResponse(BaseModel):
+    """Generic response for a list with limit and offset"""
+    next: Optional[int]
+    total: int
 
 
 class Caption(BaseModel):
@@ -41,8 +49,7 @@ class AlbumShort(BaseModel):
 
     id: str
     name: str
-    thumb_url: Optional[str]
-    date: Optional[date]
+    date: Optional[date] = None
 
 
 class AlbumFull(AlbumShort):
@@ -50,3 +57,8 @@ class AlbumFull(AlbumShort):
 
     description: str
     photos: List[PhotoShort]
+
+
+class AlbumList(ListResponse):
+    """Response for a list of albums"""
+    results: List[AlbumShort]

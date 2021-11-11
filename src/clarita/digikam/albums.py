@@ -1,31 +1,50 @@
 from datetime import date
 from os import path
+from typing import Optional
 
-from models import AlbumFull, AlbumShort, PhotoShort
+from aiosqlite import Connection
+
+from ..models import AlbumFull, AlbumList, AlbumShort, PhotoShort
 
 
-async def all(db):
-    cursor = await db.execute(
-        """
+async def list(db: Connection, limit: int, offset: int) -> AlbumList:
+    """Retrieve a list of albums.
+
+    By default only root albums are retrieved, i.e. albums without a parent.
+
+    Parameter validation should be done in higher layers, e.g. FastAPI views.
+
+    """
+    query = """
 SELECT id,
        relativePath,
        date
 FROM Albums
 ORDER BY date DESC
-        """
-    )
+LIMIT ?
+OFFSET ?
+    """
+    cursor = await db.execute(query, (limit, offset))
     albums = []
     async for row in cursor:
         albums.append(
             AlbumShort(
                 id=row[0],
                 name=path.basename(row[1]),
-                thumb_url="https://lorempixel.com/120/120/",
                 date=date.fromisoformat(row[2]),
             )
         )
     await cursor.close()
-    return albums
+    cursor = await db.execute("SELECT COUNT(*) From Albums")
+    total = (await cursor.fetchone())[0]
+    next_: Optional[int] = offset+limit
+    if next_ >= total:
+        next_ = None
+    return AlbumList(
+        results=albums,
+        next=next_,
+        total=total
+    )
 
 
 async def get(db, album_id: int):

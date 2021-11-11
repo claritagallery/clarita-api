@@ -1,4 +1,4 @@
-from models import Caption, PhotoFull
+from ..models import Caption, PhotoFull
 
 DIGIKAM_DEFAULT_LANGUAGE = "x-default"
 
