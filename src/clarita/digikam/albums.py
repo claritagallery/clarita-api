@@ -20,6 +20,7 @@ SELECT id,
        relativePath,
        date
 FROM Albums
+WHERE relativePath NOT LIKE '/%/%'
 ORDER BY date DESC
 LIMIT ?
 OFFSET ?
@@ -35,16 +36,14 @@ OFFSET ?
             )
         )
     await cursor.close()
-    cursor = await db.execute("SELECT COUNT(*) From Albums")
+    cursor = await db.execute(
+        """SELECT COUNT(*) From Albums WHERE relativePath NOT LIKE '/%/%'"""
+    )
     total = (await cursor.fetchone())[0]
-    next_: Optional[int] = offset+limit
+    next_: Optional[int] = offset + limit
     if next_ >= total:
         next_ = None
-    return AlbumList(
-        results=albums,
-        next=next_,
-        total=total
-    )
+    return AlbumList(results=albums, next=next_, total=total)
 
 
 async def get(db, album_id: int):
