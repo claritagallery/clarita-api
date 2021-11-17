@@ -2,6 +2,7 @@ from typing import Optional
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 
 from . import models
 from .digikam import DigikamSQLite
@@ -43,6 +44,12 @@ async def photo_in_album(album_id: int, photo_id: int):
 @app.get("/api/v1/photo/{photo_id}")
 async def photo(photo_id: int):
     return await digikam.photo(photo_id)
+
+
+@app.get("/api/v1/photo/{photo_id}/file")
+async def photo_file(photo_id: int):
+    path = await digikam.photo_file(photo_id)
+    return FileResponse(path)
 
 
 @app.get("/api/v1/photos")

@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Optional
 
 from ..exceptions import InvalidResult
@@ -261,3 +262,23 @@ LIMIT 1
         prev=prev,
         next=next_,
     )
+
+
+async def get_filepath(db, photo_id: int) -> Optional[Path]:
+    cursor = await db.execute(
+        """
+SELECT r.specificPath,
+       a.relativePath,
+       i.name
+FROM Images i
+JOIN Albums a ON a.id = i.album
+JOIN AlbumRoots r ON a.albumRoot
+WHERE i.id=?
+        """,
+        (photo_id,),
+    )
+    row = await cursor.fetchone()
+    if row is None:
+        return None
+    path = Path("/".join(row))
+    return path

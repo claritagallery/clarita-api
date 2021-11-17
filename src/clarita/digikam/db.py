@@ -41,6 +41,10 @@ class DigikamBase:
         async with self.connect_main_db() as db:
             return await photos.get_in_album(db, album_id, photo_id)
 
+    async def photo_file(self, photo_id: int) -> Path:
+        async with self.connect_main_db() as db:
+            return await photos.get_filepath(db, photo_id)
+
 
 class DigikamMySQL(DigikamBase):
     def connect_main_db(self):
