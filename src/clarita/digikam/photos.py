@@ -2,6 +2,7 @@ from typing import Optional
 
 from ..exceptions import InvalidResult
 from ..models import Caption, PhotoFull, PhotoList, PhotoShort
+from .albums import get_breadcrumbs
 
 DIGIKAM_DEFAULT_LANGUAGE = "x-default"
 
@@ -230,6 +231,7 @@ LIMIT 1
 
     await cursor.close()
 
+    breadcrumbs = await get_breadcrumbs(db, album_id)
     return PhotoFull(
         id=photo_id,
         filename=name,
@@ -237,6 +239,7 @@ LIMIT 1
         captions=captions,
         thumb_url="https://lorempixel.com/120/120/",
         image_url="https://lorempixel.com/3000/2000/",
-        prev=prev_id,
-        next=next_id,
+        breadcrumbs=breadcrumbs,
+        prev_id=prev_id,
+        next_id=next_id,
     )

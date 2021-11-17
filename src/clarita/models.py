@@ -33,24 +33,6 @@ class PhotoShort(BaseModel):
     date_and_time: Optional[datetime.datetime] = None
 
 
-class PhotoFull(PhotoShort):
-    """Photo to be used in detail views, with all details"""
-
-    image_url: str
-    captions: List[Caption]
-    prev: Optional[str]
-    next: Optional[str]
-    # TODO: Exif info
-    # TODO: tags
-    # TODO: copyright
-
-
-class PhotoList(ListResponse):
-    """Response for a list of photos"""
-
-    results: List[PhotoShort]
-
-
 class AlbumShort(BaseModel):
     """Album to be used in list views, with just basic details"""
 
@@ -59,11 +41,30 @@ class AlbumShort(BaseModel):
     date: Optional[datetime.date] = None
 
 
+class PhotoFull(PhotoShort):
+    """Photo to be used in detail views, with all details"""
+
+    image_url: str
+    captions: List[Caption]
+    breadcrumbs: List[AlbumShort]
+    prev_id: Optional[str]
+    next_id: Optional[str]
+    # TODO: Exif info
+    # TODO: tags
+    # TODO: copyright
+
+
 class AlbumFull(AlbumShort):
     """Album to be used in detail views, with all details"""
 
     description: str
     breadcrumbs: List[AlbumShort]
+
+
+class PhotoList(ListResponse):
+    """Response for a list of photos"""
+
+    results: List[PhotoShort]
 
 
 class AlbumList(ListResponse):
