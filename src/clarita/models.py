@@ -47,8 +47,8 @@ class PhotoFull(PhotoShort):
     image_url: str
     captions: List[Caption]
     breadcrumbs: List[AlbumShort]
-    prev_id: Optional[str]
-    next_id: Optional[str]
+    prev: Optional[PhotoShort]
+    next: Optional[PhotoShort]
     # TODO: Exif info
     # TODO: tags
     # TODO: copyright

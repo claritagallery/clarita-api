@@ -197,7 +197,9 @@ WHERE imageid=?
     # find previous and next photos by date
     cursor = await db.execute(
         """
-SELECT i.id
+SELECT i.id,
+       i.name,
+       info.creationDate
 FROM Images i
 JOIN Albums a ON i.album=a.id
 JOIN ImageInformation info ON i.id=info.imageid
@@ -210,11 +212,20 @@ LIMIT 1
         (album_id, date),
     )
     row = await cursor.fetchone()
-    prev_id = row[0] if row is not None else None
+    prev = None
+    if row is not None:
+        prev = PhotoShort(
+            id=row[0],
+            filename=row[1],
+            name=row[1],
+            date_and_time=row[2],
+        )
 
     cursor = await db.execute(
         """
-SELECT i.id
+SELECT i.id,
+       i.name,
+       info.creationDate
 FROM Images i
 JOIN Albums a ON i.album=a.id
 JOIN ImageInformation info ON i.id=info.imageid
@@ -227,7 +238,14 @@ LIMIT 1
         (album_id, date),
     )
     row = await cursor.fetchone()
-    next_id = row[0] if row is not None else None
+    next_ = None
+    if row is not None:
+        next_ = PhotoShort(
+            id=row[0],
+            filename=row[1],
+            name=row[1],
+            date_and_time=row[2],
+        )
 
     await cursor.close()
 
@@ -240,6 +258,6 @@ LIMIT 1
         thumb_url="https://lorempixel.com/120/120/",
         image_url="https://lorempixel.com/3000/2000/",
         breadcrumbs=breadcrumbs,
-        prev_id=prev_id,
-        next_id=next_id,
+        prev=prev,
+        next=next_,
     )
