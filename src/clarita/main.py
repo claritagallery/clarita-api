@@ -43,3 +43,12 @@ async def photo_in_album(album_id: int, photo_id: int):
 @app.get("/api/v1/photo/{photo_id}")
 async def photo(photo_id: int):
     return await digikam.photo(photo_id)
+
+
+@app.get("/api/v1/photos")
+async def photos(
+    album: Optional[int] = None,
+    limit: int = 20,
+    offset: int = 0,
+) -> models.PhotoList:
+    return await digikam.photos(album, limit, offset)

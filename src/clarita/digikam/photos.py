@@ -1,6 +1,63 @@
-from ..models import Caption, PhotoFull
+from typing import Optional
+
+from ..exceptions import InvalidResult
+from ..models import Caption, PhotoFull, PhotoList, PhotoShort
 
 DIGIKAM_DEFAULT_LANGUAGE = "x-default"
+
+
+async def list(db, limit: int, offset: int, album_id: Optional[int] = None) -> PhotoList:
+    query = """
+WITH photos AS (SELECT i.id as id,
+                       i.name as name,
+                       info.creationDate as date
+                FROM Images i
+                JOIN ImageInformation info ON i.id=info.imageid
+                WHERE info.format='JPG'
+"""
+    params = []
+    if album_id is not None:
+        # filter photos by album
+        query += """AND i.album=?)"""
+        params.append(album_id)
+    else:
+        query += ")"  # close WITH clause
+    retrieve_query = (
+        query
+        + """
+SELECT id,
+       name,
+       date
+FROM photos
+ORDER BY date
+LIMIT ?
+OFFSET ?
+"""
+    )
+    cursor = await db.execute(retrieve_query, params + [limit, offset])
+    photos = []
+    async for row in cursor:
+        photos.append(
+            PhotoShort(
+                id=row[0],
+                filename=row[1],
+                name=row[1],
+                date_and_time=row[2],
+            )
+        )
+    await cursor.close()
+    cursor = await db.execute(
+        query + " SELECT COUNT(*) FROM photos",
+        params,
+    )
+    row = await cursor.fetchone()
+    if row is None:
+        raise InvalidResult()
+    total = row[0]
+    next_: Optional[int] = offset + limit
+    if next_ >= total:
+        next_ = None
+    return PhotoList(results=photos, next=next_, total=total)
 
 
 async def get(db, photo_id: int):

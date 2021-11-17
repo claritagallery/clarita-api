@@ -30,7 +30,7 @@ class PhotoShort(BaseModel):
     id: str
     filename: str
     name: str
-    thumb_url: str
+    date_and_time: Optional[datetime.datetime] = None
 
 
 class PhotoFull(PhotoShort):
@@ -43,6 +43,12 @@ class PhotoFull(PhotoShort):
     # TODO: Exif info
     # TODO: tags
     # TODO: copyright
+
+
+class PhotoList(ListResponse):
+    """Response for a list of photos"""
+
+    results: List[PhotoShort]
 
 
 class AlbumShort(BaseModel):
