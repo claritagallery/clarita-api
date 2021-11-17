@@ -103,37 +103,36 @@ WHERE id=?
 
     album_id = albumrow[0]
     full_path = albumrow[1]
-    crumbs = await get_breadcrumbs(db, album_id, full_path)
+    breadcrumbs = await get_breadcrumbs(db, album_id)
     album = AlbumFull(
         id=album_id,
         name=path.basename(full_path),
         thumb_url="https://lorempixel.com/120/120/",
         date=date.fromisoformat(albumrow[2]),
         description=albumrow[3],
-        breadcrumbs=crumbs,
+        breadcrumbs=breadcrumbs,
     )
 
     await cursor.close()
     return album
 
 
-async def get_breadcrumbs(
-    db, album_id: int, album_full_path: Optional[str]
-) -> List[AlbumShort]:
+async def get_breadcrumbs(db, album_id: int) -> List[AlbumShort]:
     """Find all albums that are ancestors of the given one"""
-    if album_full_path is None:
-        raise NotImplementedError()
     cursor = await db.execute(
         """
+WITH parent AS (SELECT p.relativePath path
+                FROM Albums p
+                WHERE p.id = ?)
 SELECT id,
        relativePath,
        date
-FROM Albums
-WHERE INSTR(?, relativePath)
+FROM Albums, parent
+WHERE INSTR(parent.path, relativePath)
   AND relativePath <> '/'
 ORDER BY LENGTH(relativePath)
         """,
-        (album_full_path,),
+        (album_id,),
     )
     crumbs = []
     for r in await cursor.fetchall():
