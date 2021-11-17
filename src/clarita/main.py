@@ -23,9 +23,11 @@ digikam = DigikamSQLite("/home/fidel/digikam_data/")
 
 @app.get("/api/v1/albums")
 async def albums(
-    limit: Optional[int] = 20, offset: Optional[int] = 0
+    limit: int = 20,
+    offset: int = 0,
+    parent: Optional[int] = None,
 ) -> models.AlbumList:
-    return await digikam.albums(limit, offset)
+    return await digikam.albums(limit, offset, parent)
 
 
 @app.get("/api/v1/album/{album_id}")

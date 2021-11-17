@@ -1,6 +1,6 @@
 from os import path
 from pathlib import Path
-from typing import Union
+from typing import Optional, Union
 
 import aiosqlite
 
@@ -14,9 +14,16 @@ class DigikamBase:
     def connect_thumbnail_db(self):
         raise NotImplementedError()
 
-    async def albums(self, limit: int, offset: int):
+    async def albums(
+        self, limit: int, offset: int, parent_album_id: Optional[int] = None
+    ):
         async with self.connect_main_db() as db:
-            return await albums.list(db, limit=limit, offset=offset)
+            return await albums.list(
+                db,
+                limit=limit,
+                offset=offset,
+                parent_album_id=parent_album_id,
+            )
 
     async def album(self, album_id: str):
         try:
