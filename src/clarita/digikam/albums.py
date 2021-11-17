@@ -5,7 +5,7 @@ from typing import Any, List, Optional
 from aiosqlite import Connection
 
 from ..exceptions import InvalidResult
-from ..models import AlbumFull, AlbumList, AlbumShort, PhotoShort
+from ..models import AlbumFull, AlbumList, AlbumShort
 
 
 async def list(
@@ -101,36 +101,47 @@ WHERE id=?
         # no album with this id
         return None
 
-    # get all photos in the album
-    rows = await cursor.execute(
-        """
-SELECT i.id,
-       i.name
-FROM Images i
-JOIN ImageInformation info ON i.id=info.imageid
-WHERE i.album=?
-      AND info.format='JPG'
-        """,
-        (album_id,),
-    )
-    photos = []
-    async for row in rows:
-        photos.append(
-            PhotoShort(
-                id=row[0],
-                filename=row[1],
-                name=row[1],
-                thumb_url="https://lorempixel.com/120/120/",
-            )
-        )
+    album_id = albumrow[0]
+    full_path = albumrow[1]
+    crumbs = await get_breadcrumbs(db, album_id, full_path)
     album = AlbumFull(
-        id=albumrow[0],
-        name=path.basename(albumrow[1]),
+        id=album_id,
+        name=path.basename(full_path),
         thumb_url="https://lorempixel.com/120/120/",
         date=date.fromisoformat(albumrow[2]),
         description=albumrow[3],
-        photos=photos,
+        breadcrumbs=crumbs,
     )
 
     await cursor.close()
     return album
+
+
+async def get_breadcrumbs(
+    db, album_id: int, album_full_path: Optional[str]
+) -> List[AlbumShort]:
+    """Find all albums that are ancestors of the given one"""
+    if album_full_path is None:
+        raise NotImplementedError()
+    cursor = await db.execute(
+        """
+SELECT id,
+       relativePath,
+       date
+FROM Albums
+WHERE INSTR(?, relativePath)
+  AND relativePath <> '/'
+ORDER BY LENGTH(relativePath)
+        """,
+        (album_full_path,),
+    )
+    crumbs = []
+    for r in await cursor.fetchall():
+        crumbs.append(
+            AlbumShort(
+                id=r[0],
+                name=path.basename(r[1]),
+                date=date.fromisoformat(r[2]),
+            )
+        )
+    return crumbs

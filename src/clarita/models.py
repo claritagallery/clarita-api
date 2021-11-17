@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date
+import datetime
 from typing import List, Optional
 
 from pydantic import BaseModel
@@ -50,14 +50,14 @@ class AlbumShort(BaseModel):
 
     id: str
     name: str
-    date: Optional[date] = None
+    date: Optional[datetime.date] = None
 
 
 class AlbumFull(AlbumShort):
     """Album to be used in detail views, with all details"""
 
     description: str
-    photos: List[PhotoShort]
+    breadcrumbs: List[AlbumShort]
 
 
 class AlbumList(ListResponse):
