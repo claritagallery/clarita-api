@@ -2,10 +2,12 @@ from typing import Optional
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.requests import Request
+from fastapi.responses import FileResponse, JSONResponse
 
 from . import models
 from .digikam import DigikamSQLite
+from .exceptions import DoesNotExist
 
 ORIGINS = ["http://localhost:5000"]
 
@@ -18,6 +20,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.exception_handler(DoesNotExist)
+async def does_not_exist_exception_handler(request: Request, exc: DoesNotExist):
+    return JSONResponse(
+        status_code=404,
+        content="Not found",
+    )
+
 
 digikam = DigikamSQLite("/home/fidel/digikam_data/")
 
@@ -37,12 +48,12 @@ async def album(album_id: int) -> models.AlbumFull:
 
 
 @app.get("/api/v1/album/{album_id}/photo/{photo_id}")
-async def photo_in_album(album_id: int, photo_id: int):
+async def photo_in_album(album_id: int, photo_id: int) -> models.PhotoFull:
     return await digikam.photo_in_album(album_id, photo_id)
 
 
 @app.get("/api/v1/photo/{photo_id}")
-async def photo(photo_id: int):
+async def photo(photo_id: int) -> models.PhotoFull:
     return await digikam.photo(photo_id)
 
 

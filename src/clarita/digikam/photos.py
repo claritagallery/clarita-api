@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Optional
 
-from ..exceptions import InvalidResult
+from ..exceptions import DoesNotExist, InvalidResult
 from ..models import Caption, PhotoFull, PhotoList, PhotoShort
 from .albums import get_breadcrumbs
 
@@ -77,7 +77,7 @@ WHERE i.id=?
     )
     row = await cursor.fetchone()
     if row is None:
-        return None
+        raise DoesNotExist()
 
     name = row[1]
     date = row[2]
@@ -167,7 +167,7 @@ WHERE i.id=?
     )
     row = await cursor.fetchone()
     if row is None:
-        return None
+        raise DoesNotExist()
 
     name = row[1]
     date = row[2]
@@ -279,6 +279,6 @@ WHERE i.id=?
     )
     row = await cursor.fetchone()
     if row is None:
-        return None
+        raise DoesNotExist()
     path = Path("/".join(row))
     return path

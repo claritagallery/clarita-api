@@ -4,7 +4,7 @@ from typing import Any, List, Optional
 
 from aiosqlite import Connection
 
-from ..exceptions import InvalidResult
+from ..exceptions import DoesNotExist, InvalidResult
 from ..models import AlbumFull, AlbumList, AlbumShort
 
 
@@ -98,9 +98,7 @@ WHERE id=?
     )
     albumrow = await cursor.fetchone()
     if albumrow is None:
-        # no album with this id
-        return None
-
+        raise DoesNotExist()
     album_id = albumrow[0]
     full_path = albumrow[1]
     breadcrumbs = await get_breadcrumbs(db, album_id)
