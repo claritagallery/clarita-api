@@ -1,8 +1,9 @@
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
 from ..exceptions import DoesNotExist, InvalidResult
-from ..models import Caption, PhotoFull, PhotoList, PhotoShort
+from ..models import Caption, File, PhotoFull, PhotoList, PhotoShort
 from .albums import get_breadcrumbs
 
 DIGIKAM_DEFAULT_LANGUAGE = "x-default"
@@ -264,12 +265,13 @@ LIMIT 1
     )
 
 
-async def get_filepath(db, photo_id: int) -> Optional[Path]:
+async def get_filepath(db, photo_id: int) -> File:
     cursor = await db.execute(
         """
 SELECT r.specificPath,
        a.relativePath,
-       i.name
+       i.name,
+       i.modificationDate
 FROM Images i
 JOIN Albums a ON a.id = i.album
 JOIN AlbumRoots r ON a.albumRoot
@@ -280,5 +282,9 @@ WHERE i.id=?
     row = await cursor.fetchone()
     if row is None:
         raise DoesNotExist()
-    path = Path("/".join(row))
-    return path
+    path = Path(f"{row[0]}{row[1]}/{row[2]}")
+    last_modified = datetime.fromisoformat(row[3]) if row[3] else None
+    return File(
+        path=path,
+        last_modified=last_modified,
+    )

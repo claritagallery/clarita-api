@@ -1,13 +1,15 @@
+from datetime import datetime
 from typing import Optional
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.requests import Request
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 
 from . import models
 from .digikam import DigikamSQLite
 from .exceptions import DoesNotExist
+from .http import HTTP_MODIFIED_DATE_FORMAT
 
 ORIGINS = ["http://localhost:5000"]
 
@@ -58,9 +60,20 @@ async def photo(photo_id: int) -> models.PhotoFull:
 
 
 @app.get("/api/v1/photo/{photo_id}/file")
-async def photo_file(photo_id: int):
-    path = await digikam.photo_file(photo_id)
-    return FileResponse(path)
+async def photo_file(photo_id: int, request: Request, response: Response):
+    photo_file = await digikam.photo_file(photo_id)
+    last_modified = photo_file.last_modified
+    if last_modified:
+        response.headers["Last-Modified"] = last_modified.strftime(
+            HTTP_MODIFIED_DATE_FORMAT
+        )
+        if if_modified_since_raw := request.headers.get("If-Modified-Since"):
+            if if_modified_since := datetime.strptime(
+                if_modified_since_raw, HTTP_MODIFIED_DATE_FORMAT
+            ):
+                if last_modified >= if_modified_since:
+                    return Response(status_code=304)
+    return FileResponse(photo_file.path)
 
 
 @app.get("/api/v1/photos")

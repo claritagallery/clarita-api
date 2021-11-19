@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import datetime
+from pathlib import Path
 from typing import List, Optional
 
 from pydantic import BaseModel
@@ -11,6 +12,11 @@ class ListResponse(BaseModel):
 
     next: Optional[int]
     total: int
+
+
+class File(BaseModel):
+    path: Path
+    last_modified: Optional[datetime.datetime]
 
 
 class Caption(BaseModel):
