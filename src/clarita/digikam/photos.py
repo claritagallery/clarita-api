@@ -32,7 +32,7 @@ SELECT id,
        name,
        date
 FROM photos
-ORDER BY date
+ORDER BY date DESC
 LIMIT ?
 OFFSET ?
 """
@@ -109,7 +109,9 @@ WHERE imageid=?
     # find previous and next photos by date
     cursor = await db.execute(
         """
-SELECT i.id
+SELECT i.id,
+       i.name,
+       info.creationDate
 FROM Images i
 JOIN ImageInformation info ON i.id=info.imageid
 WHERE info.creationDate<?
@@ -120,11 +122,20 @@ LIMIT 1
         (date,),
     )
     row = await cursor.fetchone()
-    prev_id = row[0] if row is not None else None
+    prev = None
+    if row is not None:
+        prev = PhotoShort(
+            id=row[0],
+            filename=row[1],
+            name=row[1],
+            date_and_time=row[2],
+        )
 
     cursor = await db.execute(
         """
-SELECT i.id
+SELECT i.id,
+       i.name,
+       info.creationDate
 FROM Images i
 JOIN ImageInformation info ON i.id=info.imageid
 WHERE info.creationDate>?
@@ -135,7 +146,14 @@ LIMIT 1
         (date,),
     )
     row = await cursor.fetchone()
-    next_id = row[0] if row is not None else None
+    next_ = None
+    if row is not None:
+        next_ = PhotoShort(
+            id=row[0],
+            filename=row[1],
+            name=row[1],
+            date_and_time=row[2],
+        )
 
     await cursor.close()
 
@@ -146,8 +164,9 @@ LIMIT 1
         captions=captions,
         thumb_url="https://lorempixel.com/120/120/",
         image_url="https://lorempixel.com/1200/800/",
-        prev=prev_id,
-        next=next_id,
+        breadcrumbs=[],
+        prev=prev,
+        next=next_,
     )
 
 
