@@ -7,13 +7,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.requests import Request
 from fastapi.responses import FileResponse, JSONResponse, Response
 
-from . import models
+from . import log, models
 from .digikam import DigikamSQLite
 from .exceptions import DoesNotExist
 from .http import HTTP_MODIFIED_DATE_FORMAT
 
 load_dotenv()  # take environment variables from .env.
 
+log.setup_logging()
 
 ORIGINS = ["http://localhost:5000"]
 
