@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.requests import Request
@@ -11,8 +12,10 @@ from .digikam import DigikamSQLite
 from .exceptions import DoesNotExist
 from .http import HTTP_MODIFIED_DATE_FORMAT
 
-ORIGINS = ["http://localhost:5000"]
+load_dotenv()  # take environment variables from .env.
 
+
+ORIGINS = ["http://localhost:5000"]
 
 app = FastAPI()
 app.add_middleware(

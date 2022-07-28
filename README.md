@@ -12,9 +12,14 @@ Clarita should work on Python 3.7 or later, but it has been most tested on Pytho
 
 ## Development
 
-    $ pipenv install --dev
-    $ cd src
-    $ pipenv run uvicorn clarita.main:app --reload
+Copy *.env.example* file as *.env*.
+Default values should work for local development.
+
+```
+$ pipenv install --dev
+$ cd src
+$ pipenv run uvicorn clarita.main:app --reload
+```
 
 ## Changelog
 
