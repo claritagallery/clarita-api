@@ -6,14 +6,16 @@ See the Clarita React Frontend for a consumer of this API.
 
 ## Install
 
+Clarita uses [pipenv](https://pipenv.pypa.io/) for dependency management.
+
 This project supports [direnv](https://direnv.net/).
-If you use it just run ~direnv allow~.
+If you use it just run `direnv allow`.
 
-To install it manually you will need [pipenv](https://pipenv.pypa.io/), then run:
+To install dependencies manually run:
 
-    $ pipenv install
+    $ pipenv install --deploy
 
-Clarita should work on Python 3.9 or later, but it has been most tested on Python 3.9.
+Clarita should work on Python 3.10 or later, but it has been most tested on Python 3.10.
 
 ## Development
 
