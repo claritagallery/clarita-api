@@ -1,7 +1,6 @@
 import logging
-import os
 
-DEFAULT_ERROR_LOG = "error.log"
+from .config import settings
 
 
 def setup_logging():
@@ -28,7 +27,7 @@ def setup_logging():
                 "logfile": {
                     "class": "logging.handlers.RotatingFileHandler",
                     "level": "ERROR",
-                    "filename": os.getenv("ERROR_LOG_FILENAME", DEFAULT_ERROR_LOG),
+                    "filename": settings.error_log_filename,
                     "formatter": "default",
                     "backupCount": 2,
                 },
@@ -41,10 +40,13 @@ def setup_logging():
             },
             "loggers": {
                 "clarita": {
-                    "level": "DEBUG",
+                    "level": settings.loglevel_clarita,
                     "handlers": ["stdout"],
                 },
             },
-            "root": {"level": "INFO", "handlers": ["logfile", "stdout"]},
+            "root": {
+                "level": settings.loglevel_root,
+                "handlers": ["logfile", "stdout"],
+            },
         }
     )
