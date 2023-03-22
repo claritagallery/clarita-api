@@ -1,3 +1,4 @@
+import logging
 from os import path
 from pathlib import Path
 from typing import Optional, Union
@@ -5,6 +6,8 @@ from typing import Optional, Union
 import aiosqlite
 
 from . import albums, photos
+
+logger = logging.getLogger(__name__)
 
 
 class DigikamBase:
@@ -70,7 +73,24 @@ class DigikamSQLite(DigikamBase):
         self.thumbnail_db_uri = "file:{}?mode=ro".format(self.thumbnail_db_path)
 
     def connect_main_db(self) -> aiosqlite.Connection:
-        return aiosqlite.connect(self.main_db_uri, uri=True)
+        logger.debug(
+            "Attempting to connect to main Digikam SQLite DB %s", self.main_db_uri
+        )
+        try:
+            conn = aiosqlite.connect(self.main_db_uri, uri=True)
+            logger.info("Connected to main Digikam SQLite DB %s", self.main_db_uri)
+        except Exception as e:
+            logger.exception("Error connecting to DB:", e)
+        return conn
 
     def connect_thumbnail_db(self) -> aiosqlite.Connection:
-        return aiosqlite.connect(self.thumbnail_db_uri, uri=True)
+        logger.debug(
+            "Attempting to connect to thumbnail Digikam SQLite DB %s",
+            self.thumbnail_db_uri,
+        )
+        try:
+            conn = aiosqlite.connect(self.thumbnail_db_uri, uri=True)
+            logger.info("Connected to thumbnail Digikam SQLite DB %s", self.main_db_uri)
+        except Exception as e:
+            logger.exception("Error connecting to thumbnail DB:", e)
+        return conn
