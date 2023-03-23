@@ -38,3 +38,9 @@ profile = "black"
 line_length = 90
 multi_line_output = 3
 src_paths = ["src"]
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+]
+pythonpath = "src"

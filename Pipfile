@@ -6,6 +6,7 @@ name = "pypi"
 [scripts]
 start = "uvicorn --app-dir src clarita.main:app"
 dev = "uvicorn  --app-dir src clarita.main:app --reload"
+test = "./test.sh"
 
 [packages]
 fastapi = "*"
@@ -23,6 +24,12 @@ ipython = "*"
 isort = "*"
 mypy = "*"
 pre-commit = "*"
+pytest = "*"
+httpx = "*"
+python-lsp-server = {extras = ["flake8", "pycodestyle", "rope"], version = "*"}
+python-lsp-black = "*"
+pyls-isort = "*"
+pylsp-mypy = "*"
 
 [requires]
 python_version = "3.10"
