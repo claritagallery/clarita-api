@@ -32,7 +32,11 @@ async def does_not_exist_exception_handler(request: Request, exc: DoesNotExist):
     )
 
 
-digikam = DigikamSQLite("/home/fidel/digikam_data/")
+digikam = DigikamSQLite(
+    settings.database_root,
+    settings.database_main_path,
+    settings.database_thumbnail_path,
+)
 
 
 @app.get("/api/v1/albums")

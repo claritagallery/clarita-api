@@ -65,11 +65,18 @@ class DigikamSQLite(DigikamBase):
     MAIN_DB_NAME = "digikam4.db"
     THUMBNAIL_DB_NAME = "thumbnails-digikam.db"
 
-    def __init__(self, db_root: Union[str, Path]):
+    def __init__(
+        self,
+        db_root: str | Path,
+        main_db_path: str | Path | None,
+        thumbnail_db_path: str | Path | None,
+    ):
         self.db_root = db_root
-        self.main_db_path = path.join(db_root, self.MAIN_DB_NAME)
+        self.main_db_path = main_db_path or path.join(db_root, self.MAIN_DB_NAME)
         self.main_db_uri = "file:{}?mode=ro".format(self.main_db_path)
-        self.thumbnail_db_path = path.join(db_root, self.THUMBNAIL_DB_NAME)
+        self.thumbnail_db_path = thumbnail_db_path or path.join(
+            db_root, self.THUMBNAIL_DB_NAME
+        )
         self.thumbnail_db_uri = "file:{}?mode=ro".format(self.thumbnail_db_path)
 
     def connect_main_db(self) -> aiosqlite.Connection:
