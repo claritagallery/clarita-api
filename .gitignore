@@ -2,6 +2,8 @@
 .direnv
 # copy from .env.sample
 .env
+# mypy
+.mypy_cache
 # popular place to put your virtualenv
 .venv
 # default error log location
