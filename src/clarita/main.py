@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -43,7 +42,7 @@ digikam = DigikamSQLite(
 async def albums(
     limit: int = 20,
     offset: int = 0,
-    parent: Optional[int] = None,
+    parent: int | None = None,
 ) -> models.AlbumList:
     return await digikam.albums(limit, offset, parent)
 
@@ -82,7 +81,7 @@ async def photo_file(photo_id: int, request: Request, response: Response):
 
 @app.get("/api/v1/photos")
 async def photos(
-    album: Optional[int] = None,
+    album: int | None = None,
     limit: int = 20,
     offset: int = 0,
 ) -> models.PhotoList:

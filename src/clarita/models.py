@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import datetime
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 from pydantic import BaseModel
 
@@ -10,13 +10,13 @@ from pydantic import BaseModel
 class ListResponse(BaseModel):
     """Generic response for a list with limit and offset"""
 
-    next: Optional[int]
+    next: int | None
     total: int
 
 
 class File(BaseModel):
     path: Path
-    last_modified: Optional[datetime.datetime]
+    last_modified: datetime.datetime | None
 
 
 class Caption(BaseModel):
@@ -26,7 +26,7 @@ class Caption(BaseModel):
 
     """
 
-    language: Optional[str]
+    language: str | None
     text: str
 
 
@@ -36,7 +36,7 @@ class PhotoShort(BaseModel):
     id: str
     filename: str
     name: str
-    date_and_time: Optional[datetime.datetime] = None
+    date_and_time: datetime.datetime | None = None
 
 
 class AlbumShort(BaseModel):
@@ -44,7 +44,7 @@ class AlbumShort(BaseModel):
 
     id: str
     name: str
-    date: Optional[datetime.date] = None
+    date: datetime.date | None = None
 
 
 class PhotoFull(PhotoShort):
@@ -53,8 +53,8 @@ class PhotoFull(PhotoShort):
     image_url: str
     captions: List[Caption]
     breadcrumbs: List[AlbumShort]
-    prev: Optional[PhotoShort]
-    next: Optional[PhotoShort]
+    prev: PhotoShort | None
+    next: PhotoShort | None
     # TODO: Exif info
     # TODO: tags
     # TODO: copyright

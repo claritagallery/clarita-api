@@ -1,7 +1,6 @@
 import logging
 from os import path
 from pathlib import Path
-from typing import Optional, Union
 
 import aiosqlite
 
@@ -17,9 +16,7 @@ class DigikamBase:
     def connect_thumbnail_db(self):
         raise NotImplementedError()
 
-    async def albums(
-        self, limit: int, offset: int, parent_album_id: Optional[int] = None
-    ):
+    async def albums(self, limit: int, offset: int, parent_album_id: int | None = None):
         async with self.connect_main_db() as db:
             return await albums.list(
                 db,
@@ -32,7 +29,7 @@ class DigikamBase:
         async with self.connect_main_db() as db:
             return await albums.get(db, album_id)
 
-    async def photos(self, album_id: Optional[int], limit: int, offset: int):
+    async def photos(self, album_id: int | None, limit: int, offset: int):
         async with self.connect_main_db() as db:
             return await photos.list(db, limit, offset, album_id)
 
