@@ -4,7 +4,7 @@ from pathlib import Path
 
 import aiosqlite
 
-from ..config import IgnoredRoots
+from ..config import IgnoredRoots, RootMap
 from ..models import File
 from . import albums, photos
 
@@ -54,9 +54,11 @@ class DigikamBase:
         async with self.connect_main_db() as db:
             return await photos.get_in_album(db, album_id, photo_id, ignored_roots)
 
-    async def photo_file(self, photo_id: int, ignored_roots: IgnoredRoots) -> File:
+    async def photo_file(
+        self, photo_id: int, ignored_roots: IgnoredRoots, root_map: RootMap
+    ) -> File:
         async with self.connect_main_db() as db:
-            return await photos.get_filepath(db, photo_id, ignored_roots)
+            return await photos.get_filepath(db, photo_id, ignored_roots, root_map)
 
 
 class DigikamMySQL(DigikamBase):

@@ -3,7 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-from ..config import IgnoredRoots
+from ..config import IgnoredRoots, RootMap
 from ..exceptions import DoesNotExist, InvalidResult
 from ..models import Caption, File, PhotoFull, PhotoList, PhotoShort
 from .albums import get_breadcrumbs
@@ -313,13 +313,19 @@ LIMIT 1
     )
 
 
-async def get_filepath(db, photo_id: int, ignored_roots: IgnoredRoots) -> File:
+async def get_filepath(
+    db, photo_id: int, ignored_roots: IgnoredRoots, root_map: RootMap
+) -> File:
     logger.info(
-        "photo get_filepath photo_id=%s ignored_roots=%r", photo_id, ignored_roots
+        "photo get_filepath photo_id=%s ignored_roots=%r root_map=%r",
+        photo_id,
+        ignored_roots,
+        root_map,
     )
     cursor = await db.execute(
         """
-SELECT r.specificPath,
+SELECT r.id,
+       r.specificPath,
        a.relativePath,
        i.name,
        i.modificationDate
@@ -334,8 +340,10 @@ WHERE i.id=?
     row = await cursor.fetchone()
     if row is None:
         raise DoesNotExist()
-    path = Path(f"{row[0]}{row[1]}/{row[2]}")
-    last_modified = datetime.fromisoformat(row[3]) if row[3] else None
+    root_id = row[0]
+    root_path = root_map.get(root_id, row[1])
+    path = Path(f"{root_path}{row[2]}/{row[3]}")
+    last_modified = datetime.fromisoformat(row[4]) if row[4] else None
     return File(
         path=path,
         last_modified=last_modified,
