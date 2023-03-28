@@ -41,7 +41,8 @@ def setup_logging():
             "loggers": {
                 "clarita": {
                     "level": settings.loglevel_clarita,
-                    "handlers": ["stdout"],
+                    "handlers": ["logfile", "stdout"],
+                    "propagate": False,
                 },
             },
             "root": {
