@@ -47,13 +47,14 @@ WITH album AS (SELECT id, relativePath path, date
         # parent album and the second one filters only the direct descendants (those
         # with only one / character)
         query = """
-WITH parent AS (SELECT p.relativePath path
+WITH parent AS (SELECT p.id, p.relativePath path
                 FROM Albums p
                 WHERE p.id = ?),
      album AS (SELECT a.id, SUBSTR(a.relativePath, LENGTH(parent.path)+2) path, date
                FROM Albums a, parent
                WHERE INSTR(a.relativePath, parent.path) == 1
-                 AND (LENGTH(path)-LENGTH(REPLACE(path, '/', ''))) = 1)
+                 AND (LENGTH(path)-LENGTH(REPLACE(path, '/', ''))) = 1
+                 AND a.id <> parent.id)
 """
         params.append(parent_album_id)
     retrieve_query = (

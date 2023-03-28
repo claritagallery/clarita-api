@@ -28,9 +28,8 @@ def test_albums_for_parent_depth_1():
         "results": [
             {"date": "2019-05-05", "id": "6", "name": "Album1.2"},
             {"date": "2019-04-04", "id": "5", "name": "Album1.1"},
-            {"date": "2019-01-01", "id": "2", "name": ""},
         ],
-        "total": 3,
+        "total": 2,
     }
 
 
