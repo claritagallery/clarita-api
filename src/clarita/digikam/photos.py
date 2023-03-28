@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
@@ -8,8 +9,11 @@ from .albums import get_breadcrumbs
 
 DIGIKAM_DEFAULT_LANGUAGE = "x-default"
 
+logger = logging.getLogger(__name__)
+
 
 async def list(db, limit: int, offset: int, album_id: Optional[int] = None) -> PhotoList:
+    logger.info("photos list limit=%s offset=%s album_id=%s", limit, offset, album_id)
     query = """
 WITH photos AS (SELECT i.id as id,
                        i.name as name,
@@ -64,6 +68,7 @@ OFFSET ?
 
 
 async def get(db, photo_id: int):
+    logger.info("photo get photo_id=%s", photo_id)
     cursor = await db.execute(
         """
 SELECT i.id,
@@ -171,6 +176,7 @@ LIMIT 1
 
 
 async def get_in_album(db, album_id: int, photo_id: int):
+    logger.info("photo get_in_album album_id=%s photo_id=%s", album_id, photo_id)
     cursor = await db.execute(
         """
 SELECT i.id,
@@ -285,6 +291,7 @@ LIMIT 1
 
 
 async def get_filepath(db, photo_id: int) -> File:
+    logger.info("photo get_filepath photo_id=%s", photo_id)
     cursor = await db.execute(
         """
 SELECT r.specificPath,

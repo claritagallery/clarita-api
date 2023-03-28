@@ -1,3 +1,4 @@
+import logging
 from datetime import date
 from os import path
 from typing import Any, List, Optional
@@ -6,6 +7,8 @@ from aiosqlite import Connection
 
 from ..exceptions import DoesNotExist, InvalidResult
 from ..models import AlbumFull, AlbumList, AlbumShort
+
+logger = logging.getLogger(__name__)
 
 
 async def list(
@@ -21,6 +24,12 @@ async def list(
 
     Parameter validation should be done in higher layers, e.g. FastAPI views.
     """
+    logger.info(
+        "albums list limit=%s offset=%s parent_album_id=%s",
+        limit,
+        offset,
+        parent_album_id,
+    )
     params: List[Any] = []
     if parent_album_id is None:
         # filter root albums
@@ -84,6 +93,7 @@ OFFSET ?
 
 async def get(db, album_id: int):
     # get album details
+    logger.info("albums get album_id=%s", album_id)
     cursor = await db.execute(
         """
 SELECT id,
@@ -117,6 +127,7 @@ WHERE id=?
 
 async def get_breadcrumbs(db, album_id: int) -> List[AlbumShort]:
     """Find all albums that are ancestors of the given one"""
+    logger.info("albums get_breadcrumbs album_id=%s", album_id)
     cursor = await db.execute(
         """
 WITH parent AS (SELECT p.relativePath path
