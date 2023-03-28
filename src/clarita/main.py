@@ -62,7 +62,7 @@ async def photo(photo_id: int) -> models.PhotoFull:
     return await digikam.photo(photo_id)
 
 
-@app.get("/api/v1/photo/{photo_id}/file")
+@app.get("/api/v1/photo/{photo_id}/file", response_class=FileResponse)
 async def photo_file(photo_id: int, request: Request, response: Response):
     photo_file = await digikam.photo_file(photo_id)
     last_modified = photo_file.last_modified
