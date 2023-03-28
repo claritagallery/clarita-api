@@ -3,6 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
+from ..config import IgnoredRoots
 from ..exceptions import DoesNotExist, InvalidResult
 from ..models import Caption, File, PhotoFull, PhotoList, PhotoShort
 from .albums import get_breadcrumbs
@@ -12,17 +13,31 @@ DIGIKAM_DEFAULT_LANGUAGE = "x-default"
 logger = logging.getLogger(__name__)
 
 
-async def list(db, limit: int, offset: int, album_id: Optional[int] = None) -> PhotoList:
-    logger.info("photos list limit=%s offset=%s album_id=%s", limit, offset, album_id)
+async def list(
+    db,
+    limit: int,
+    offset: int,
+    ignored_roots: IgnoredRoots,
+    album_id: Optional[int] = None,
+) -> PhotoList:
+    logger.info(
+        "photos list limit=%s offset=%s ignored_roots=%r album_id=%s",
+        limit,
+        offset,
+        ignored_roots,
+        album_id,
+    )
     query = """
 WITH photos AS (SELECT i.id as id,
                        i.name as name,
                        info.creationDate as date
                 FROM Images i
                 JOIN ImageInformation info ON i.id=info.imageid
+                JOIN Albums a ON a.id=i.album
                 WHERE info.format='JPG'
+                  AND a.albumRoot NOT IN (?)
 """
-    params = []
+    params = [",".join(str(r) for r in ignored_roots)]
     if album_id is not None:
         # filter photos by album
         query += """AND i.album=?)"""
@@ -67,8 +82,8 @@ OFFSET ?
     return PhotoList(results=photos, next=next_, total=total)
 
 
-async def get(db, photo_id: int):
-    logger.info("photo get photo_id=%s", photo_id)
+async def get(db, photo_id: int, ignored_roots: IgnoredRoots):
+    logger.info("photo get photo_id=%s ignored_roots=%r", photo_id, ignored_roots)
     cursor = await db.execute(
         """
 SELECT i.id,
@@ -76,10 +91,12 @@ SELECT i.id,
        info.creationDate
 FROM Images i
 JOIN ImageInformation info ON i.id=info.imageid
+JOIN Albums a ON a.id=i.album
 WHERE i.id=?
   AND info.format='JPG'
+  AND a.albumRoot NOT IN (?)
         """,
-        (photo_id,),
+        (photo_id, ",".join(str(r) for r in ignored_roots)),
     )
     row = await cursor.fetchone()
     if row is None:
@@ -175,8 +192,13 @@ LIMIT 1
     )
 
 
-async def get_in_album(db, album_id: int, photo_id: int):
-    logger.info("photo get_in_album album_id=%s photo_id=%s", album_id, photo_id)
+async def get_in_album(db, album_id: int, photo_id: int, ignored_roots: IgnoredRoots):
+    logger.info(
+        "photo get_in_album album_id=%s photo_id=%s ignored_roots=%r",
+        album_id,
+        photo_id,
+        ignored_roots,
+    )
     cursor = await db.execute(
         """
 SELECT i.id,
@@ -188,8 +210,9 @@ JOIN ImageInformation info ON i.id=info.imageid
 WHERE i.id=?
   AND a.id=?
   AND info.format='JPG'
+  AND a.albumRoot NOT IN (?)
         """,
-        (photo_id, album_id),
+        (photo_id, album_id, ",".join(str(r) for r in ignored_roots)),
     )
     row = await cursor.fetchone()
     if row is None:
@@ -290,8 +313,10 @@ LIMIT 1
     )
 
 
-async def get_filepath(db, photo_id: int) -> File:
-    logger.info("photo get_filepath photo_id=%s", photo_id)
+async def get_filepath(db, photo_id: int, ignored_roots: IgnoredRoots) -> File:
+    logger.info(
+        "photo get_filepath photo_id=%s ignored_roots=%r", photo_id, ignored_roots
+    )
     cursor = await db.execute(
         """
 SELECT r.specificPath,
@@ -302,8 +327,9 @@ FROM Images i
 JOIN Albums a ON a.id = i.album
 JOIN AlbumRoots r ON a.albumRoot
 WHERE i.id=?
+  AND a.albumRoot NOT IN (?)
         """,
-        (photo_id,),
+        (photo_id, ",".join(str(r) for r in ignored_roots)),
     )
     row = await cursor.fetchone()
     if row is None:

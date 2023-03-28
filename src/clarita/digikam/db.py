@@ -4,6 +4,8 @@ from pathlib import Path
 
 import aiosqlite
 
+from ..config import IgnoredRoots
+from ..models import File
 from . import albums, photos
 
 logger = logging.getLogger(__name__)
@@ -16,34 +18,45 @@ class DigikamBase:
     def connect_thumbnail_db(self):
         raise NotImplementedError()
 
-    async def albums(self, limit: int, offset: int, parent_album_id: int | None = None):
+    async def albums(
+        self,
+        limit: int,
+        offset: int,
+        ignored_roots: IgnoredRoots,
+        parent_album_id: int | None = None,
+    ):
         async with self.connect_main_db() as db:
             return await albums.list(
                 db,
                 limit=limit,
                 offset=offset,
+                ignored_roots=ignored_roots,
                 parent_album_id=parent_album_id,
             )
 
-    async def album(self, album_id: int):
+    async def album(self, album_id: int, ignored_roots: IgnoredRoots):
         async with self.connect_main_db() as db:
-            return await albums.get(db, album_id)
+            return await albums.get(db, album_id, ignored_roots=ignored_roots)
 
-    async def photos(self, album_id: int | None, limit: int, offset: int):
+    async def photos(
+        self, limit: int, offset: int, ignored_roots: IgnoredRoots, album_id: int | None
+    ):
         async with self.connect_main_db() as db:
-            return await photos.list(db, limit, offset, album_id)
+            return await photos.list(db, limit, offset, ignored_roots, album_id)
 
-    async def photo(self, photo_id: int):
+    async def photo(self, photo_id: int, ignored_roots: IgnoredRoots):
         async with self.connect_main_db() as db:
-            return await photos.get(db, photo_id)
+            return await photos.get(db, photo_id, ignored_roots)
 
-    async def photo_in_album(self, album_id: int, photo_id: int):
+    async def photo_in_album(
+        self, album_id: int, photo_id: int, ignored_roots: IgnoredRoots
+    ):
         async with self.connect_main_db() as db:
-            return await photos.get_in_album(db, album_id, photo_id)
+            return await photos.get_in_album(db, album_id, photo_id, ignored_roots)
 
-    async def photo_file(self, photo_id: int) -> Path:
+    async def photo_file(self, photo_id: int, ignored_roots: IgnoredRoots) -> File:
         async with self.connect_main_db() as db:
-            return await photos.get_filepath(db, photo_id)
+            return await photos.get_filepath(db, photo_id, ignored_roots)
 
 
 class DigikamMySQL(DigikamBase):

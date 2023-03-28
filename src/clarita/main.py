@@ -44,27 +44,27 @@ async def albums(
     offset: int = 0,
     parent: int | None = None,
 ) -> models.AlbumList:
-    return await digikam.albums(limit, offset, parent)
+    return await digikam.albums(limit, offset, settings.ignored_roots, parent)
 
 
 @app.get("/api/v1/album/{album_id}")
 async def album(album_id: int) -> models.AlbumFull:
-    return await digikam.album(album_id)
+    return await digikam.album(album_id, settings.ignored_roots)
 
 
 @app.get("/api/v1/album/{album_id}/photo/{photo_id}")
 async def photo_in_album(album_id: int, photo_id: int) -> models.PhotoFull:
-    return await digikam.photo_in_album(album_id, photo_id)
+    return await digikam.photo_in_album(album_id, photo_id, settings.ignored_roots)
 
 
 @app.get("/api/v1/photo/{photo_id}")
 async def photo(photo_id: int) -> models.PhotoFull:
-    return await digikam.photo(photo_id)
+    return await digikam.photo(photo_id, settings.ignored_roots)
 
 
 @app.get("/api/v1/photo/{photo_id}/file", response_class=FileResponse)
 async def photo_file(photo_id: int, request: Request, response: Response):
-    photo_file = await digikam.photo_file(photo_id)
+    photo_file = await digikam.photo_file(photo_id, settings.ignored_roots)
     last_modified = photo_file.last_modified
     if last_modified:
         response.headers["Last-Modified"] = last_modified.strftime(
@@ -85,4 +85,4 @@ async def photos(
     limit: int = 20,
     offset: int = 0,
 ) -> models.PhotoList:
-    return await digikam.photos(album, limit, offset)
+    return await digikam.photos(limit, offset, settings.ignored_roots, album)

@@ -5,6 +5,7 @@ from typing import Any, List, Optional
 
 from aiosqlite import Connection
 
+from ..config import IgnoredRoots
 from ..exceptions import DoesNotExist, InvalidResult
 from ..models import AlbumFull, AlbumList, AlbumShort
 
@@ -15,6 +16,7 @@ async def list(
     db: Connection,
     limit: int,
     offset: int,
+    ignored_roots: IgnoredRoots,
     parent_album_id: Optional[int] = None,
 ) -> AlbumList:
     """Retrieve a list of albums.
@@ -25,19 +27,23 @@ async def list(
     Parameter validation should be done in higher layers, e.g. FastAPI views.
     """
     logger.info(
-        "albums list limit=%s offset=%s parent_album_id=%s",
+        "albums list limit=%s offset=%s ignored_roots=%r parent_album_id=%s",
         limit,
         offset,
+        ignored_roots,
         parent_album_id,
     )
     params: List[Any] = []
+    ignored_roots_str = ",".join(str(r) for r in ignored_roots) if ignored_roots else "()"
     if parent_album_id is None:
         # filter root albums
         query = """
 WITH album AS (SELECT id, relativePath path, date
                FROM Albums
-               WHERE relativePath NOT LIKE '/%/%')
+               WHERE relativePath NOT LIKE '/%/%'
+                 AND albumRoot NOT IN (?))
 """
+        params.append(ignored_roots_str)
     else:
         # Filter albums that are direct children of the given one.
         # relativePath of the parent will be something like /grandparent/parent, so
@@ -54,9 +60,11 @@ WITH parent AS (SELECT p.id, p.relativePath path
                FROM Albums a, parent
                WHERE INSTR(a.relativePath, parent.path) == 1
                  AND (LENGTH(path)-LENGTH(REPLACE(path, '/', ''))) = 1
-                 AND a.id <> parent.id)
+                 AND a.id <> parent.id
+                 AND albumRoot NOT IN (?))
 """
         params.append(parent_album_id)
+        params.append(ignored_roots_str)
     retrieve_query = (
         query
         + """
@@ -92,9 +100,9 @@ OFFSET ?
     return AlbumList(results=albums, next=next_, total=total)
 
 
-async def get(db, album_id: int):
+async def get(db, album_id: int, ignored_roots: IgnoredRoots):
     # get album details
-    logger.info("albums get album_id=%s", album_id)
+    logger.info("albums get album_id=%s ignored_roots=%r", album_id, ignored_roots)
     cursor = await db.execute(
         """
 SELECT id,
@@ -104,8 +112,9 @@ SELECT id,
        COALESCE(collection, '') as collection
 FROM Albums
 WHERE id=?
+  AND albumRoot NOT IN (?)
         """,
-        (album_id,),
+        (album_id, ",".join(str(r) for r in ignored_roots)),
     )
     albumrow = await cursor.fetchone()
     if albumrow is None:
