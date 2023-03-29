@@ -1,10 +1,26 @@
 # Clarita API backend
 
-This is an API for the Clarita Web Gallery.
+This is an API for the Clarita Web Gallery, which exposes a [Digikam](https://www.digikam.org/) photo collection through a nice web interface.
 
 See the [Clarita React Frontend](https://github.com/claritagallery/clarita-react-frontend) for a consumer of this API.
 
-## Install
+## Run with Docker
+
+Build the image:
+
+    docker build . -t clarita:latest
+
+Run it with:
+
+    docker run --env CORS_ORIGINS='["*"]' -v /path/to/digikam_data:/home/appuser/digikam_data:ro --rm clarita:latest
+
+On a real deployment you should set `CORS_ORIGINS` to the list of hostnames where Clarita is hosted.
+
+`/path/to/digikam_data` should be the local path to where Digikam SQLite databases are stored.
+
+See [.env.example](.env.example) for all possible environment values.
+
+## Install manually
 
 Clarita uses [pipenv](https://pipenv.pypa.io/) for dependency management.
 
@@ -13,7 +29,7 @@ If you use it just run `direnv allow`.
 
 To install dependencies manually run:
 
-    $ pipenv install --deploy
+    pipenv install --deploy
 
 Clarita should work on Python 3.10 or later, but it has been most tested on Python 3.10.
 
@@ -22,11 +38,9 @@ Clarita should work on Python 3.10 or later, but it has been most tested on Pyth
 Copy *.env.example* file as *.env*.
 Default values should work for local development.
 
-```
-$ pipenv install --dev
-$ cd src
-$ pipenv run uvicorn clarita.main:app --reload
-```
+    pipenv install --dev
+    cd src
+    pipenv run uvicorn clarita.main:app --reload
 
 ## Changelog
 
