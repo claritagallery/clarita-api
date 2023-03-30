@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 from ..config import IgnoredRoots, RootMap
 from ..exceptions import DoesNotExist, InvalidResult
@@ -37,7 +37,7 @@ WITH photos AS (SELECT i.id as id,
                 WHERE info.format='JPG'
                   AND a.albumRoot NOT IN (?)
 """
-    params = [",".join(str(r) for r in ignored_roots)]
+    params: List[int | str] = [",".join(str(r) for r in ignored_roots)]
     if album_id is not None:
         # filter photos by album
         query += """AND i.album=?)"""
@@ -61,7 +61,7 @@ OFFSET ?
     async for row in cursor:
         photos.append(
             PhotoShort(
-                id=row[0],
+                id=str(row[0]),
                 filename=row[1],
                 name=row[1],
                 date_and_time=row[2],
@@ -147,7 +147,7 @@ LIMIT 1
     prev = None
     if row is not None:
         prev = PhotoShort(
-            id=row[0],
+            id=str(row[0]),
             filename=row[1],
             name=row[1],
             date_and_time=row[2],
@@ -171,7 +171,7 @@ LIMIT 1
     next_ = None
     if row is not None:
         next_ = PhotoShort(
-            id=row[0],
+            id=str(row[0]),
             filename=row[1],
             name=row[1],
             date_and_time=row[2],
@@ -180,7 +180,7 @@ LIMIT 1
     await cursor.close()
 
     return PhotoFull(
-        id=photo_id,
+        id=str(photo_id),
         filename=name,
         name=name,
         captions=captions,
@@ -265,7 +265,7 @@ LIMIT 1
     prev = None
     if row is not None:
         prev = PhotoShort(
-            id=row[0],
+            id=str(row[0]),
             filename=row[1],
             name=row[1],
             date_and_time=row[2],
@@ -291,7 +291,7 @@ LIMIT 1
     next_ = None
     if row is not None:
         next_ = PhotoShort(
-            id=row[0],
+            id=str(row[0]),
             filename=row[1],
             name=row[1],
             date_and_time=row[2],
@@ -301,7 +301,7 @@ LIMIT 1
 
     breadcrumbs = await get_breadcrumbs(db, album_id)
     return PhotoFull(
-        id=photo_id,
+        id=str(photo_id),
         filename=name,
         name=name,
         captions=captions,

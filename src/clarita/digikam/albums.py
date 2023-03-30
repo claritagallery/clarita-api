@@ -80,7 +80,7 @@ OFFSET ?
     async for row in cursor:
         albums.append(
             AlbumShort(
-                id=row[0],
+                id=str(row[0]),
                 name=path.basename(row[1]),
                 date=date.fromisoformat(row[2]),
             )
@@ -90,10 +90,10 @@ OFFSET ?
         query + " SELECT COUNT(*) FROM album",
         params,
     )
-    row = await cursor.fetchone()
-    if row is None:
+    count = await cursor.fetchone()
+    if count is None:
         raise InvalidResult()
-    total = row[0]
+    total = count[0]
     next_: Optional[int] = offset + limit
     if next_ >= total:
         next_ = None
@@ -123,7 +123,7 @@ WHERE id=?
     full_path = albumrow[1]
     breadcrumbs = await get_breadcrumbs(db, album_id)
     album = AlbumFull(
-        id=album_id,
+        id=str(album_id),
         name=path.basename(full_path),
         thumb_url="https://lorempixel.com/120/120/",
         date=date.fromisoformat(albumrow[2]),
@@ -157,7 +157,7 @@ ORDER BY LENGTH(relativePath)
     for r in await cursor.fetchall():
         crumbs.append(
             AlbumShort(
-                id=r[0],
+                id=str(r[0]),
                 name=path.basename(r[1]),
                 date=date.fromisoformat(r[2]),
             )

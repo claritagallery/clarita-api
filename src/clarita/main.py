@@ -7,7 +7,7 @@ from fastapi.responses import FileResponse, JSONResponse, Response
 
 from . import log, models
 from .config import settings
-from .digikam import DigikamSQLite
+from .digikam.db import DigikamSQLite
 from .exceptions import DoesNotExist
 from .http import HTTP_MODIFIED_DATE_FORMAT
 
