@@ -1,10 +1,7 @@
 # https://direnv.net/
 .direnv
-# copy from .env.sample
 .env
-# mypy
 .mypy_cache
-# popular place to put your virtualenv
+.ropeproject
 .venv
-# default error log location
 error.log
