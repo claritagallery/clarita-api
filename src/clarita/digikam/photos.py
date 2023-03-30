@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 from ..config import IgnoredRoots, RootMap
 from ..exceptions import DoesNotExist, InvalidResult
@@ -18,7 +18,7 @@ async def list(
     limit: int,
     offset: int,
     ignored_roots: IgnoredRoots,
-    album_id: Optional[int] = None,
+    album_id: int | None = None,
 ) -> PhotoList:
     logger.info(
         "photos list limit=%s offset=%s ignored_roots=%r album_id=%s",
@@ -76,7 +76,7 @@ OFFSET ?
     if row is None:
         raise InvalidResult()
     total = row[0]
-    next_: Optional[int] = offset + limit
+    next_: int | None = offset + limit
     if next_ >= total:
         next_ = None
     return PhotoList(results=photos, next=next_, total=total)

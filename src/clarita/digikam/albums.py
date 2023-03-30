@@ -1,7 +1,7 @@
 import logging
 from datetime import date
 from os import path
-from typing import Any, List, Optional
+from typing import Any, List
 
 from aiosqlite import Connection
 
@@ -17,14 +17,16 @@ async def list(
     limit: int,
     offset: int,
     ignored_roots: IgnoredRoots,
-    parent_album_id: Optional[int] = None,
+    parent_album_id: int | None = None,
 ) -> AlbumList:
     """Retrieve a list of albums.
 
-    By default only root albums are retrieved, i.e. albums without a parent.  Use
-    parent_album_id to
+    By default only root albums are retrieved, i.e. albums without a parent.
+
+    Use parent_album_id to find all immediate child albums of an album.
 
     Parameter validation should be done in higher layers, e.g. FastAPI views.
+
     """
     logger.info(
         "albums list limit=%s offset=%s ignored_roots=%r parent_album_id=%s",
@@ -94,7 +96,7 @@ OFFSET ?
     if count is None:
         raise InvalidResult()
     total = count[0]
-    next_: Optional[int] = offset + limit
+    next_: int | None = offset + limit
     if next_ >= total:
         next_ = None
     return AlbumList(results=albums, next=next_, total=total)
