@@ -46,13 +46,13 @@ class DigikamBase:
 
     async def photo(self, photo_id: int, ignored_roots: IgnoredRoots):
         async with self.connect_main_db() as db:
-            return await photos.get(db, photo_id, ignored_roots)
+            return await photos.get(db, None, photo_id, ignored_roots)
 
     async def photo_in_album(
         self, album_id: int, photo_id: int, ignored_roots: IgnoredRoots
     ):
         async with self.connect_main_db() as db:
-            return await photos.get_in_album(db, album_id, photo_id, ignored_roots)
+            return await photos.get(db, album_id, photo_id, ignored_roots)
 
     async def photo_file(
         self, photo_id: int, ignored_roots: IgnoredRoots, root_map: RootMap

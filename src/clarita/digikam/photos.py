@@ -5,12 +5,50 @@ from typing import List
 
 from ..config import IgnoredRoots, RootMap
 from ..exceptions import DoesNotExist, InvalidResult
-from ..models import Caption, File, PhotoFull, PhotoList, PhotoShort
+from ..models import File, PhotoFull, PhotoList, PhotoShort
 from .albums import get_breadcrumbs
+from .constants import CaptionType
 
 DIGIKAM_DEFAULT_LANGUAGE = "x-default"
 
 logger = logging.getLogger(__name__)
+
+
+# This is the base query for photos that will:
+# 1. Get basic data from Images table
+# 2. Get creation date from ImageInformation
+# 3. Get photo title from ImageComments (first one by language)
+# 4. Control that photo is not part of an excluded collection (see IGNORED_ROOTS)
+PHOTOS_QUERY = (
+    """
+WITH numbered_titles AS (
+  SELECT *,
+         ROW_NUMBER() OVER (
+            PARTITION BY imageid
+            ORDER BY language asc
+        ) AS row_number
+    FROM ImageComments
+   WHERE type=%d
+), first_titles AS (
+    SELECT *
+    FROM numbered_titles
+    WHERE row_number = 1
+), photos AS (
+  SELECT i.id as id,
+         i.name as filename,
+         d.comment as title,
+         info.creationDate as date,
+         i.album as album
+    FROM Images i
+    LEFT JOIN first_titles d ON d.imageid=i.id
+    JOIN ImageInformation info ON info.imageid=i.id
+    JOIN Albums a ON a.id=i.album
+   WHERE info.format='JPG'
+     AND a.albumRoot NOT IN (?)
+)
+"""
+    % CaptionType.TITLE.value
+)
 
 
 async def list(
@@ -27,51 +65,32 @@ async def list(
         ignored_roots,
         album_id,
     )
-    query = """
-WITH photos AS (SELECT i.id as id,
-                       i.name as name,
-                       info.creationDate as date
-                FROM Images i
-                JOIN ImageInformation info ON i.id=info.imageid
-                JOIN Albums a ON a.id=i.album
-                WHERE info.format='JPG'
-                  AND a.albumRoot NOT IN (?)
-"""
-    params: List[int | str] = [",".join(str(r) for r in ignored_roots)]
-    if album_id is not None:
-        # filter photos by album
-        query += """AND i.album=?)"""
-        params.append(album_id)
-    else:
-        query += ")"  # close WITH clause
+    album_filter = "WHERE album=? " if album_id is not None else ""
     retrieve_query = (
-        query
-        + """
-SELECT id,
-       name,
-       date
-FROM photos
-ORDER BY date DESC
-LIMIT ?
-OFFSET ?
-"""
+        PHOTOS_QUERY
+        + "SELECT * FROM photos "
+        + album_filter
+        + "ORDER BY date DESC "
+        + "LIMIT ? OFFSET ?"
     )
+    params: List[str | int] = [",".join(str(r) for r in ignored_roots)]
+    if album_id is not None:
+        params.append(album_id)
     cursor = await db.execute(retrieve_query, params + [limit, offset])
     photos = []
     async for row in cursor:
+        print(row)
         photos.append(
             PhotoShort(
                 id=str(row[0]),
                 filename=row[1],
-                name=row[1],
-                date_and_time=row[2],
+                title=row[2] or row[1],
+                date_and_time=row[3],
             )
         )
     await cursor.close()
-    cursor = await db.execute(
-        query + " SELECT COUNT(*) FROM photos",
-        params,
-    )
+    count_query = PHOTOS_QUERY + "SELECT COUNT(*) FROM photos " + album_filter
+    cursor = await db.execute(count_query, params)
     row = await cursor.fetchone()
     if row is None:
         raise InvalidResult()
@@ -82,144 +101,26 @@ OFFSET ?
     return PhotoList(results=photos, next=next_, total=total)
 
 
-async def get(db, photo_id: int, ignored_roots: IgnoredRoots):
-    logger.info("photo get photo_id=%s ignored_roots=%r", photo_id, ignored_roots)
-    cursor = await db.execute(
-        """
-SELECT i.id,
-       i.name,
-       info.creationDate
-FROM Images i
-JOIN ImageInformation info ON i.id=info.imageid
-JOIN Albums a ON a.id=i.album
-WHERE i.id=?
-  AND info.format='JPG'
-  AND a.albumRoot NOT IN (?)
-        """,
-        (photo_id, ",".join(str(r) for r in ignored_roots)),
-    )
-    row = await cursor.fetchone()
-    if row is None:
-        raise DoesNotExist()
-
-    name = row[1]
-    date = row[2]
-
-    # retrieve captions (ImageComments table)
-    # there can be multiple captions, on different languages
-    # default language ("x-default") will be passed as null
-    cursor = await db.execute(
-        """
-SELECT language,
-       comment
-FROM ImageComments
-WHERE imageid=?
-        """,
-        (photo_id,),
-    )
-    captions = []
-    for r in await cursor.fetchall():
-        caption = Caption(language=r[0], text=r[1].strip())
-        if not caption.text:
-            # there can be empty texts in the Digikam DB, ignore them
-            continue
-        if caption.language == DIGIKAM_DEFAULT_LANGUAGE:
-            caption.language = None
-        # TODO: normalize other languages to ISO 639-1
-        captions.append(caption)
-
-    # find previous and next photos by date
-    cursor = await db.execute(
-        """
-SELECT i.id,
-       i.name,
-       info.creationDate
-FROM Images i
-JOIN ImageInformation info ON i.id=info.imageid
-WHERE info.creationDate<?
-  AND info.format='JPG'
-ORDER BY info.creationDate DESC
-LIMIT 1
-        """,
-        (date,),
-    )
-    row = await cursor.fetchone()
-    prev = None
-    if row is not None:
-        prev = PhotoShort(
-            id=str(row[0]),
-            filename=row[1],
-            name=row[1],
-            date_and_time=row[2],
-        )
-
-    cursor = await db.execute(
-        """
-SELECT i.id,
-       i.name,
-       info.creationDate
-FROM Images i
-JOIN ImageInformation info ON i.id=info.imageid
-WHERE info.creationDate>?
-  AND info.format='JPG'
-ORDER BY info.creationDate ASC
-LIMIT 1
-        """,
-        (date,),
-    )
-    row = await cursor.fetchone()
-    next_ = None
-    if row is not None:
-        next_ = PhotoShort(
-            id=str(row[0]),
-            filename=row[1],
-            name=row[1],
-            date_and_time=row[2],
-        )
-
-    await cursor.close()
-
-    return PhotoFull(
-        id=str(photo_id),
-        filename=name,
-        name=name,
-        captions=captions,
-        thumb_url="https://lorempixel.com/120/120/",
-        image_url="https://lorempixel.com/1200/800/",
-        breadcrumbs=[],
-        prev=prev,
-        next=next_,
-    )
-
-
-async def get_in_album(db, album_id: int, photo_id: int, ignored_roots: IgnoredRoots):
+async def get(db, album_id: int | None, photo_id: int, ignored_roots: IgnoredRoots):
     logger.info(
-        "photo get_in_album album_id=%s photo_id=%s ignored_roots=%r",
+        "photo get album_id=%s photo_id=%s ignored_roots=%r",
         album_id,
         photo_id,
         ignored_roots,
     )
-    cursor = await db.execute(
-        """
-SELECT i.id,
-       i.name,
-       info.creationDate
-FROM Images i
-JOIN Albums a ON a.id=i.album
-JOIN ImageInformation info ON i.id=info.imageid
-WHERE i.id=?
-  AND a.id=?
-  AND info.format='JPG'
-  AND a.albumRoot NOT IN (?)
-        """,
-        (photo_id, album_id, ",".join(str(r) for r in ignored_roots)),
-    )
+    retrieve_query = PHOTOS_QUERY + "SELECT * FROM photos WHERE id=? "
+    params = [",".join(str(r) for r in ignored_roots), photo_id]
+    if album_id is not None:
+        retrieve_query += "AND album=? "
+        params.append(album_id)
+    cursor = await db.execute(retrieve_query, params)
     row = await cursor.fetchone()
     if row is None:
         raise DoesNotExist()
 
-    name = row[1]
-    date = row[2]
+    filename = row[1]
+    title = row[2] or row[1]
+    date = row[3]
 
     # retrieve captions (ImageComments table)
     # there can be multiple captions, on different languages
@@ -228,85 +129,67 @@ WHERE i.id=?
         """
 SELECT language,
        comment
-FROM ImageComments
-WHERE imageid=?
-        """,
-        (photo_id,),
-    )
-    captions = []
-    for r in await cursor.fetchall():
-        caption = Caption(language=r[0], text=r[1].strip())
-        if not caption.text:
-            # there can be empty texts in the Digikam DB, ignore them
-            continue
-        if caption.language == DIGIKAM_DEFAULT_LANGUAGE:
-            caption.language = None
-        # TODO: normalize other languages to ISO 639-1
-        captions.append(caption)
-
-    # find previous and next photos by date
-    cursor = await db.execute(
-        """
-SELECT i.id,
-       i.name,
-       info.creationDate
-FROM Images i
-JOIN Albums a ON i.album=a.id
-JOIN ImageInformation info ON i.id=info.imageid
-WHERE a.id=?
-  AND info.creationDate<?
-  AND info.format='JPG'
-ORDER BY info.creationDate DESC
+  FROM ImageComments
+ WHERE imageid=?
+   AND type=?
+ORDER BY language ASC
 LIMIT 1
         """,
-        (album_id, date),
+        (photo_id, CaptionType.DESCRIPTION.value),
     )
+    description = ""
+    rows = await cursor.fetchall()
+    logger.debug("Available descriptions for photo %s: %r", photo_id, rows)
+    description = rows[0][1] if rows else ""
+
+    breadcrumbs = await get_breadcrumbs(db, album_id) if album_id else []
+
+    # find previous and next photos by date
+    prev_query = (
+        PHOTOS_QUERY
+        + "SELECT * FROM photos WHERE date<? "
+        + ("AND album=? " if album_id is not None else "")
+        + "ORDER BY date DESC LIMIT 1"
+    )
+    next_query = (
+        PHOTOS_QUERY
+        + "SELECT * FROM photos WHERE date>? "
+        + ("AND album=? " if album_id is not None else "")
+        + "ORDER BY date ASC LIMIT 1"
+    )
+    prevnext_params = [",".join(str(r) for r in ignored_roots), date]
+    if album_id is not None:
+        prevnext_params.append(album_id)
+    cursor = await db.execute(prev_query, prevnext_params)
     row = await cursor.fetchone()
     prev = None
     if row is not None:
         prev = PhotoShort(
             id=str(row[0]),
             filename=row[1],
-            name=row[1],
-            date_and_time=row[2],
+            title=row[2] or row[1],
+            date_and_time=row[3],
         )
-
-    cursor = await db.execute(
-        """
-SELECT i.id,
-       i.name,
-       info.creationDate
-FROM Images i
-JOIN Albums a ON i.album=a.id
-JOIN ImageInformation info ON i.id=info.imageid
-WHERE a.id=?
-  AND info.creationDate>?
-  AND info.format='JPG'
-ORDER BY info.creationDate ASC
-LIMIT 1
-        """,
-        (album_id, date),
-    )
+    cursor = await db.execute(next_query, prevnext_params)
     row = await cursor.fetchone()
     next_ = None
     if row is not None:
         next_ = PhotoShort(
             id=str(row[0]),
             filename=row[1],
-            name=row[1],
-            date_and_time=row[2],
+            title=row[2] or row[1],
+            date_and_time=row[3],
         )
 
     await cursor.close()
 
-    breadcrumbs = await get_breadcrumbs(db, album_id)
     return PhotoFull(
         id=str(photo_id),
-        filename=name,
-        name=name,
-        captions=captions,
-        thumb_url="https://lorempixel.com/120/120/",
-        image_url="https://lorempixel.com/3000/2000/",
+        filename=filename,
+        title=title,
+        date_and_time=date,
+        image_url=f"/api/v1/photo/{photo_id}/file",
+        description=description,
         breadcrumbs=breadcrumbs,
         prev=prev,
         next=next_,

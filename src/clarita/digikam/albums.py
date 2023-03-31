@@ -1,7 +1,7 @@
 import logging
 from datetime import date
 from os import path
-from typing import Any, List
+from typing import List
 
 from aiosqlite import Connection
 
@@ -35,7 +35,7 @@ async def list(
         ignored_roots,
         parent_album_id,
     )
-    params: List[Any] = []
+    params: List[int | str] = []
     ignored_roots_str = ",".join(str(r) for r in ignored_roots) if ignored_roots else "()"
     if parent_album_id is None:
         # filter root albums
@@ -83,7 +83,7 @@ OFFSET ?
         albums.append(
             AlbumShort(
                 id=str(row[0]),
-                name=path.basename(row[1]),
+                title=path.basename(row[1]),
                 date=date.fromisoformat(row[2]),
             )
         )
@@ -107,8 +107,7 @@ async def get(db, album_id: int, ignored_roots: IgnoredRoots):
     logger.info("albums get album_id=%s ignored_roots=%r", album_id, ignored_roots)
     cursor = await db.execute(
         """
-SELECT id,
-       relativePath,
+SELECT relativePath,
        date,
        COALESCE(caption, '') as caption,
        COALESCE(collection, '') as collection
@@ -121,15 +120,13 @@ WHERE id=?
     albumrow = await cursor.fetchone()
     if albumrow is None:
         raise DoesNotExist()
-    album_id = albumrow[0]
-    full_path = albumrow[1]
+    full_path = albumrow[0]
     breadcrumbs = await get_breadcrumbs(db, album_id)
     album = AlbumFull(
         id=str(album_id),
-        name=path.basename(full_path),
-        thumb_url="https://lorempixel.com/120/120/",
-        date=date.fromisoformat(albumrow[2]),
-        description=albumrow[3],
+        title=path.basename(full_path),
+        date=date.fromisoformat(albumrow[1]),
+        description=albumrow[2],
         breadcrumbs=breadcrumbs,
     )
 
@@ -160,7 +157,7 @@ ORDER BY LENGTH(relativePath)
         crumbs.append(
             AlbumShort(
                 id=str(r[0]),
-                name=path.basename(r[1]),
+                title=path.basename(r[1]),
                 date=date.fromisoformat(r[2]),
             )
         )

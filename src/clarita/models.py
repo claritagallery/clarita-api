@@ -19,23 +19,12 @@ class File(BaseModel):
     last_modified: datetime.datetime | None
 
 
-class Caption(BaseModel):
-    """Description in a language.
-
-    language will be null if not specified (default caption).
-
-    """
-
-    language: str | None
-    text: str
-
-
 class PhotoShort(BaseModel):
     """Photo to be used in list views, with just basic details"""
 
     id: str
     filename: str
-    name: str
+    title: str
     date_and_time: datetime.datetime | None = None
 
 
@@ -43,7 +32,7 @@ class AlbumShort(BaseModel):
     """Album to be used in list views, with just basic details"""
 
     id: str
-    name: str
+    title: str
     date: datetime.date | None = None
 
 
@@ -51,7 +40,7 @@ class PhotoFull(PhotoShort):
     """Photo to be used in detail views, with all details"""
 
     image_url: str
-    captions: List[Caption]
+    description: str
     breadcrumbs: List[AlbumShort]
     prev: PhotoShort | None
     next: PhotoShort | None

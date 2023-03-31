@@ -15,25 +15,22 @@ def test_photo():
     assert response.status_code == 200
     assert response.json() == {
         "breadcrumbs": [],
-        "captions": [
-            {"language": None, "text": "Title of image1"},
-            {"language": None, "text": "Caption of image1"},
-        ],
-        "date_and_time": None,
+        "description": "Caption of image1",
+        "date_and_time": "2014-06-14T12:55:39",
         "filename": "image1.jpg",
         "id": "1",
-        "image_url": "https://lorempixel.com/1200/800/",
-        "name": "image1.jpg",
+        "image_url": "/api/v1/photo/1/file",
         "next": {
             "date_and_time": "2015-01-24T13:00:01",
             "filename": "image10.jpg",
             "id": "9",
-            "name": "image10.jpg",
+            "title": "image10.jpg",
         },
         "prev": {
             "date_and_time": "2014-03-23T10:49:40",
             "filename": "image20.jpg",
             "id": "20",
-            "name": "image20.jpg",
+            "title": "image20.jpg",
         },
+        "title": "Title of image1",
     }
