@@ -1,4 +1,12 @@
 repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.4.0
+  hooks:
+  - id: check-json
+  - id: check-toml
+  - id: check-yaml
+  - id: check-merge-conflict
+  - id: debug-statements
 - repo: https://github.com/PyCQA/isort
   rev: 5.12.0
   hooks:
@@ -15,11 +23,15 @@ repos:
   hooks:
   - id: flake8
     args: [--config=setup.cfg]
-- repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.4.0
+- repo: local
   hooks:
-  - id: check-json
-  - id: check-merge-conflict
-  - id: check-toml
-  - id: check-yaml
-  - id: debug-statements
+    - id: mypy
+      name: mypy
+      entry: "sh mypy_run.sh"
+      language: system
+      # run if any Python file is changed
+      types: [python]
+      # mypy will always check all files
+      pass_filenames: false
+      # use require_serial so that script is only called once per commit
+      require_serial: true
