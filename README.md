@@ -2,7 +2,7 @@
 
 This is an API for the Clarita Web Gallery.
 
-See the Clarita React Frontend for a consumer of this API.
+See the [Clarita React Frontend](https://github.com/claritagallery/clarita-react-frontend) for a consumer of this API.
 
 ## Install
 
