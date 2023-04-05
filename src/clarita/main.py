@@ -32,7 +32,6 @@ async def does_not_exist_exception_handler(request: Request, exc: DoesNotExist):
 
 
 digikam = DigikamSQLite(
-    settings.database_root,
     settings.database_main_path,
     settings.database_thumbnail_path,
 )
