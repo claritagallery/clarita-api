@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     database_main_path: str
     database_thumbnail_path: str
 
-    error_log_filename: str = "error.log"
+    error_log_filename: str | None = None
     loglevel_clarita: str = "INFO"
     loglevel_root: str = "INFO"
 
