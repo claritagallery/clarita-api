@@ -39,8 +39,15 @@ Copy *.env.example* file as *.env*.
 Default values should work for local development.
 
     pipenv install --dev
-    cd src
-    pipenv run uvicorn clarita.main:app --reload
+    pipenv run dev
+
+To run tests:
+
+    pipenv run test
+
+Install the pre-commit hooks:
+
+    pre-commit install
 
 ## Changelog
 
