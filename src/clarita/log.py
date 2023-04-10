@@ -9,6 +9,23 @@ def setup_logging():
     .env should already have been loaded before calling setup_logging()
 
     """
+    handlers = {
+        "stdout": {
+            "class": "logging.StreamHandler",
+            "level": "DEBUG",
+            "formatter": "simple",
+            "stream": "ext://sys.stdout",
+        },
+    }
+    if logfile := settings.error_log_filename:
+        handlers["logfile"] = {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "ERROR",
+            "filename": logfile,
+            "formatter": "default",
+            "backupCount": "2",
+        }
+
     logging.config.dictConfig(
         {
             "version": 1,
@@ -23,31 +40,17 @@ def setup_logging():
                     "format": "%(message)s",
                 },
             },
-            "handlers": {
-                "logfile": {
-                    "class": "logging.handlers.RotatingFileHandler",
-                    "level": "ERROR",
-                    "filename": settings.error_log_filename,
-                    "formatter": "default",
-                    "backupCount": 2,
-                },
-                "stdout": {
-                    "class": "logging.StreamHandler",
-                    "level": "DEBUG",
-                    "formatter": "simple",
-                    "stream": "ext://sys.stdout",
-                },
-            },
+            "handlers": handlers,
             "loggers": {
                 "clarita": {
                     "level": settings.loglevel_clarita,
-                    "handlers": ["logfile", "stdout"],
+                    "handlers": list(handlers.keys()),
                     "propagate": False,
                 },
             },
             "root": {
                 "level": settings.loglevel_root,
-                "handlers": ["logfile", "stdout"],
+                "handlers": list(handlers.keys()),
             },
         }
     )

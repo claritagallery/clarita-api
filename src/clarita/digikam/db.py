@@ -1,5 +1,4 @@
 import logging
-from os import path
 from pathlib import Path
 
 import aiosqlite
@@ -79,16 +78,12 @@ class DigikamSQLite(DigikamBase):
 
     def __init__(
         self,
-        db_root: str | Path,
-        main_db_path: str | Path | None,
-        thumbnail_db_path: str | Path | None,
+        main_db_path: str | Path,
+        thumbnail_db_path: str | Path,
     ):
-        self.db_root = db_root
-        self.main_db_path = main_db_path or path.join(db_root, self.MAIN_DB_NAME)
+        self.main_db_path = main_db_path
         self.main_db_uri = "file:{}?mode=ro".format(self.main_db_path)
-        self.thumbnail_db_path = thumbnail_db_path or path.join(
-            db_root, self.THUMBNAIL_DB_NAME
-        )
+        self.thumbnail_db_path = thumbnail_db_path
         self.thumbnail_db_uri = "file:{}?mode=ro".format(self.thumbnail_db_path)
 
     def connect_main_db(self) -> aiosqlite.Connection:

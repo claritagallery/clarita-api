@@ -1,0 +1,10 @@
+# ignore everything
+**
+
+# ...except for dependencies and source
+!src/
+!Pipfile
+!Pipfile.lock
+
+# ...except for this stuff inside src/ that we don't want
+**/.mypy_cache

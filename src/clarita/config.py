@@ -9,11 +9,10 @@ RootMap = Dict[int, str]
 class Settings(BaseSettings):
     cors_origins: List[str]
 
-    database_root: str
     database_main_path: str
     database_thumbnail_path: str
 
-    error_log_filename: str = "error.log"
+    error_log_filename: str | None = None
     loglevel_clarita: str = "INFO"
     loglevel_root: str = "INFO"
 
