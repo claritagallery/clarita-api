@@ -41,11 +41,15 @@ Default values should work for local development.
     pipenv install --dev
     pipenv run dev
 
+To run all linters:
+
+    pipenv run lint
+
 To run tests:
 
     pipenv run test
 
-Install the pre-commit hooks:
+Install the pre-commit hooks to lint code before every commit:
 
     pre-commit install
 

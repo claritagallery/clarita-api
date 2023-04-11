@@ -6,6 +6,7 @@ name = "pypi"
 [scripts]
 start = "uvicorn --app-dir src clarita.main:app"
 dev = "uvicorn  --app-dir src clarita.main:app --reload"
+lint = "pre-commit run -a"
 test = "./test.sh"
 
 [packages]
