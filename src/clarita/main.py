@@ -40,7 +40,7 @@ digikam = DigikamSQLite(
 
 @app.get("/api/v1/albums")
 async def albums(
-    limit: Annotated[int, Query(ge=1, le=100)] = 20,
+    limit: Annotated[int, Query(ge=1, le=100)] = 100,
     offset: Annotated[int, Query(ge=0)] = 0,
     parent: Annotated[int | None, Query(ge=0)] = None,
 ) -> models.AlbumList:
@@ -84,7 +84,7 @@ async def photo_file(photo_id: int, request: Request, response: Response):
 @app.get("/api/v1/photos")
 async def photos(
     album: Annotated[int | None, Query(ge=0)] = None,
-    limit: Annotated[int, Query(ge=1, le=100)] = 20,
+    limit: Annotated[int, Query(ge=1, le=100)] = 100,
     offset: Annotated[int, Query(ge=0)] = 0,
 ) -> models.PhotoList:
     return await digikam.photos(limit, offset, settings.ignored_roots, album)
