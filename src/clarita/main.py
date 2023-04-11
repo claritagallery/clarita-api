@@ -1,6 +1,7 @@
 from datetime import datetime
+from typing import Annotated
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.requests import Request
 from fastapi.responses import FileResponse, JSONResponse, Response
@@ -39,9 +40,9 @@ digikam = DigikamSQLite(
 
 @app.get("/api/v1/albums")
 async def albums(
-    limit: int = 20,
-    offset: int = 0,
-    parent: int | None = None,
+    limit: Annotated[int, Query(ge=1, le=100)] = 20,
+    offset: Annotated[int, Query(ge=0)] = 0,
+    parent: Annotated[int | None, Query(ge=0)] = None,
 ) -> models.AlbumList:
     return await digikam.albums(limit, offset, settings.ignored_roots, parent)
 
@@ -82,8 +83,8 @@ async def photo_file(photo_id: int, request: Request, response: Response):
 
 @app.get("/api/v1/photos")
 async def photos(
-    album: int | None = None,
-    limit: int = 20,
-    offset: int = 0,
+    album: Annotated[int | None, Query(ge=0)] = None,
+    limit: Annotated[int, Query(ge=1, le=100)] = 20,
+    offset: Annotated[int, Query(ge=0)] = 0,
 ) -> models.PhotoList:
     return await digikam.photos(limit, offset, settings.ignored_roots, album)
