@@ -27,7 +27,7 @@ jobs:
         pip install pipenv
     - name: Install dependencies
       run: |
-        pipenv install --deploy
+        pipenv install --dev --deploy
     - name: Run all pre-commit checks
       run: |
         pipenv run lint
