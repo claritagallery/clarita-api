@@ -9,7 +9,7 @@ def test_photos_no_album():
     response = client.get("/api/v1/photos")
     assert response.status_code == 200
     assert response.json() == {
-        "next": 20,
+        "next": None,
         "results": [
             {
                 "date_and_time": "2019-08-16T17:12:00",
@@ -130,6 +130,30 @@ def test_photos_no_album():
                 "filename": "image20.jpg",
                 "id": "20",
                 "title": "image20.jpg",
+            },
+            {
+                "date_and_time": "2014-03-23T10:12:19",
+                "filename": "image19.jpg",
+                "id": "19",
+                "title": "image19.jpg",
+            },
+            {
+                "date_and_time": "2014-03-15T09:41:35",
+                "filename": "image2.jpg",
+                "id": "2",
+                "title": "Title of image2",
+            },
+            {
+                "date_and_time": "2012-12-31T11:26:00",
+                "filename": "image22.jpg",
+                "id": "22",
+                "title": "image22.jpg",
+            },
+            {
+                "date_and_time": "2012-03-03T16:21:17",
+                "filename": "image21.jpg",
+                "id": "21",
+                "title": "image21.jpg",
             },
         ],
         "total": 24,
