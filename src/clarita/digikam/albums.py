@@ -8,6 +8,8 @@ from aiosqlite import Connection
 from ..config import IgnoredRoots
 from ..exceptions import DoesNotExist, InvalidResult
 from ..models import AlbumFull, AlbumList, AlbumShort
+from ..typehint import assert_never
+from ..types import AlbumOrder
 
 logger = logging.getLogger(__name__)
 
@@ -16,6 +18,7 @@ async def list(
     db: Connection,
     limit: int,
     offset: int,
+    order: AlbumOrder,
     ignored_roots: IgnoredRoots,
     parent_album_id: int | None = None,
 ) -> AlbumList:
@@ -67,15 +70,28 @@ WITH parent AS (SELECT p.id, p.relativePath path
 """
         params.append(parent_album_id)
         params.append(ignored_roots_str)
+
+    if order is AlbumOrder.titleAsc:
+        order_by = "path ASC"
+    elif order is AlbumOrder.titleDesc:
+        order_by = "path DESC"
+    elif order is AlbumOrder.dateAsc:
+        order_by = "date ASC"
+    elif order is AlbumOrder.dateDesc:
+        order_by = "date DESC"
+    else:
+        assert_never(order)
+
     retrieve_query = (
         query
         + """
 SELECT id, path, date
 FROM album
-ORDER BY date DESC
+ORDER BY %s
 LIMIT ?
 OFFSET ?
 """
+        % order_by
     )
     cursor = await db.execute(retrieve_query, params + [limit, offset])
     albums = []

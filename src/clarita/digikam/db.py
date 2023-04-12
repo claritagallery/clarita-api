@@ -5,6 +5,7 @@ import aiosqlite
 
 from ..config import IgnoredRoots, RootMap
 from ..models import File
+from ..types import AlbumOrder
 from . import albums, photos
 
 logger = logging.getLogger(__name__)
@@ -21,6 +22,7 @@ class DigikamBase:
         self,
         limit: int,
         offset: int,
+        order: AlbumOrder,
         ignored_roots: IgnoredRoots,
         parent_album_id: int | None = None,
     ):
@@ -29,6 +31,7 @@ class DigikamBase:
                 db,
                 limit=limit,
                 offset=offset,
+                order=order,
                 ignored_roots=ignored_roots,
                 parent_album_id=parent_album_id,
             )
