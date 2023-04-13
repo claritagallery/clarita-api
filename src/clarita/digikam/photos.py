@@ -188,7 +188,7 @@ LIMIT 1
         filename=filename,
         title=title,
         date_and_time=date,
-        image_url=f"/api/v1/photo/{photo_id}/file",
+        image_url=f"/api/v1/photos/{photo_id}/file",
         description=description,
         breadcrumbs=breadcrumbs,
         prev=prev,

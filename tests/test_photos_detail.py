@@ -6,12 +6,12 @@ client = TestClient(app)
 
 
 def test_photo_404():
-    response = client.get("/api/v1/photo/12345")
+    response = client.get("/api/v1/photos/12345")
     assert response.status_code == 404
 
 
 def test_photo():
-    response = client.get("/api/v1/photo/1")
+    response = client.get("/api/v1/photos/1")
     assert response.status_code == 200
     assert response.json() == {
         "breadcrumbs": [],
@@ -19,7 +19,7 @@ def test_photo():
         "date_and_time": "2014-06-14T12:55:39",
         "filename": "image1.jpg",
         "id": "1",
-        "image_url": "/api/v1/photo/1/file",
+        "image_url": "/api/v1/photos/1/file",
         "next": {
             "date_and_time": "2015-01-24T13:00:01",
             "filename": "image10.jpg",

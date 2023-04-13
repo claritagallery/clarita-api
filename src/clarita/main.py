@@ -49,22 +49,31 @@ async def albums(
     return await digikam.albums(limit, offset, order, settings.ignored_roots, parent)
 
 
-@app.get("/api/v1/album/{album_id}")
+@app.get("/api/v1/albums/{album_id}")
 async def album(album_id: int) -> models.AlbumFull:
     return await digikam.album(album_id, settings.ignored_roots)
 
 
-@app.get("/api/v1/album/{album_id}/photo/{photo_id}")
+@app.get("/api/v1/albums/{album_id}/photos/{photo_id}")
 async def photo_in_album(album_id: int, photo_id: int) -> models.PhotoFull:
     return await digikam.photo_in_album(album_id, photo_id, settings.ignored_roots)
 
 
-@app.get("/api/v1/photo/{photo_id}")
+@app.get("/api/v1/photos")
+async def photos(
+    album: Annotated[int | None, Query(ge=0)] = None,
+    limit: Annotated[int, Query(ge=1, le=100)] = 100,
+    offset: Annotated[int, Query(ge=0)] = 0,
+) -> models.PhotoList:
+    return await digikam.photos(limit, offset, settings.ignored_roots, album)
+
+
+@app.get("/api/v1/photos/{photo_id}")
 async def photo(photo_id: int) -> models.PhotoFull:
     return await digikam.photo(photo_id, settings.ignored_roots)
 
 
-@app.get("/api/v1/photo/{photo_id}/file", response_class=FileResponse)
+@app.get("/api/v1/photos/{photo_id}/file", response_class=FileResponse)
 async def photo_file(photo_id: int, request: Request, response: Response):
     photo_file = await digikam.photo_file(
         photo_id, settings.ignored_roots, settings.root_map
@@ -81,12 +90,3 @@ async def photo_file(photo_id: int, request: Request, response: Response):
                 if last_modified >= if_modified_since:
                     return Response(status_code=304)
     return FileResponse(photo_file.path)
-
-
-@app.get("/api/v1/photos")
-async def photos(
-    album: Annotated[int | None, Query(ge=0)] = None,
-    limit: Annotated[int, Query(ge=1, le=100)] = 100,
-    offset: Annotated[int, Query(ge=0)] = 0,
-) -> models.PhotoList:
-    return await digikam.photos(limit, offset, settings.ignored_roots, album)
