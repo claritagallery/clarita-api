@@ -5,7 +5,7 @@ import aiosqlite
 
 from ..config import IgnoredRoots, RootMap
 from ..models import File
-from ..types import AlbumOrder
+from ..types import AlbumOrder, PhotoOrder
 from . import albums, photos
 
 logger = logging.getLogger(__name__)
@@ -41,10 +41,15 @@ class DigikamBase:
             return await albums.get(db, album_id, ignored_roots=ignored_roots)
 
     async def photos(
-        self, limit: int, offset: int, ignored_roots: IgnoredRoots, album_id: int | None
+        self,
+        limit: int,
+        offset: int,
+        order: PhotoOrder,
+        ignored_roots: IgnoredRoots,
+        album_id: int | None,
     ):
         async with self.connect_main_db() as db:
-            return await photos.list(db, limit, offset, ignored_roots, album_id)
+            return await photos.list(db, limit, offset, order, ignored_roots, album_id)
 
     async def photo(self, photo_id: int, ignored_roots: IgnoredRoots):
         async with self.connect_main_db() as db:

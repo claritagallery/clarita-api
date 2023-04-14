@@ -6,6 +6,8 @@ from typing import List
 from ..config import IgnoredRoots, RootMap
 from ..exceptions import DoesNotExist, InvalidResult
 from ..models import File, PhotoFull, PhotoList, PhotoShort
+from ..typehint import assert_never
+from ..types import PhotoOrder
 from .albums import get_breadcrumbs
 from .constants import CaptionType
 
@@ -55,6 +57,7 @@ async def list(
     db,
     limit: int,
     offset: int,
+    order: PhotoOrder,
     ignored_roots: IgnoredRoots,
     album_id: int | None = None,
 ) -> PhotoList:
@@ -66,11 +69,23 @@ async def list(
         album_id,
     )
     album_filter = "WHERE album=? " if album_id is not None else ""
+
+    if order is PhotoOrder.titleAsc:
+        order_by = "title ASC, filename ASC"
+    elif order is PhotoOrder.titleDesc:
+        order_by = "title DESC, filename DESC"
+    elif order is PhotoOrder.dateAndTimeAsc:
+        order_by = "date ASC"
+    elif order is PhotoOrder.dateAndTimeDesc:
+        order_by = "date DESC"
+    else:
+        assert_never(order)
+
     retrieve_query = (
         PHOTOS_QUERY
-        + "SELECT * FROM photos "
+        + "SELECT * FROM photos "  # noqa: S608
         + album_filter
-        + "ORDER BY date DESC "
+        + "ORDER BY %s " % order_by  # noqa: S608
         + "LIMIT ? OFFSET ?"
     )
     params: List[str | int] = [",".join(str(r) for r in ignored_roots)]

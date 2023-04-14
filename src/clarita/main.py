@@ -11,7 +11,7 @@ from .config import settings
 from .digikam.db import DigikamSQLite
 from .exceptions import DoesNotExist
 from .http import HTTP_MODIFIED_DATE_FORMAT
-from .types import AlbumOrder
+from .types import AlbumOrder, PhotoOrder
 
 log.setup_logging()
 
@@ -64,8 +64,9 @@ async def photos(
     album: Annotated[int | None, Query(ge=0)] = None,
     limit: Annotated[int, Query(ge=1, le=100)] = 100,
     offset: Annotated[int, Query(ge=0)] = 0,
+    order: Annotated[PhotoOrder, Query()] = PhotoOrder.dateAndTimeAsc,
 ) -> models.PhotoList:
-    return await digikam.photos(limit, offset, settings.ignored_roots, album)
+    return await digikam.photos(limit, offset, order, settings.ignored_roots, album)
 
 
 @app.get("/api/v1/photos/{photo_id}")
