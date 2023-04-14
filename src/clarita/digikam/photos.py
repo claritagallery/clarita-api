@@ -79,7 +79,6 @@ async def list(
     cursor = await db.execute(retrieve_query, params + [limit, offset])
     photos = []
     async for row in cursor:
-        print(row)
         photos.append(
             PhotoShort(
                 id=str(row[0]),
