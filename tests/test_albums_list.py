@@ -11,12 +11,13 @@ def test_albums_root():
     assert response.json() == {
         "next": None,
         "results": [
-            {"date": "2019-08-16", "id": "1", "title": ""},
-            {"date": "2019-01-01", "id": "2", "title": "Album1"},
-            {"date": "2019-02-02", "id": "3", "title": "Album2"},
-            {"date": "2019-03-03", "id": "4", "title": "Album3"},
+            {"date": "2023-05-29", "id": "1", "title": ""},
+            {"date": "2019-01-01", "id": "2", "title": "Album 1"},
+            {"date": "2019-02-02", "id": "3", "title": "Album 2"},
+            {"date": "2019-03-03", "id": "4", "title": "Album 3"},
+            {"date": "2019-04-04", "id": "10", "title": "Album 4"},
         ],
-        "total": 4,
+        "total": 5,
     }
 
 
@@ -26,8 +27,8 @@ def test_albums_for_parent_depth_1():
     assert response.json() == {
         "next": None,
         "results": [
-            {"date": "2019-04-04", "id": "5", "title": "Album1.1"},
-            {"date": "2019-05-05", "id": "6", "title": "Album1.2"},
+            {"date": "2020-01-01", "id": "5", "title": "Album 1.1"},
+            {"date": "2021-01-01", "id": "6", "title": "Album 1.2"},
         ],
         "total": 2,
     }
@@ -35,6 +36,30 @@ def test_albums_for_parent_depth_1():
 
 def test_albums_for_parent_depth_2():
     response = client.get("/api/v1/albums?parent=5")
+    assert response.status_code == 200
+    assert response.json() == {
+        "next": None,
+        "results": [
+            {"date": "2020-01-01", "id": "7", "title": "Album 1.1.1"},
+            {"date": "2020-02-02", "id": "8", "title": "Album 1.1.2"},
+            {"date": "2020-03-03", "id": "9", "title": "Album 1.1.3"},
+        ],
+        "total": 3,
+    }
+
+
+def test_albums_for_parent_with_no_children():
+    response = client.get("/api/v1/albums?parent=7")
+    assert response.status_code == 200
+    assert response.json() == {
+        "next": None,
+        "results": [],
+        "total": 0,
+    }
+
+
+def test_albums_for_non_existing_parent():
+    response = client.get("/api/v1/albums?parent=424242")
     assert response.status_code == 200
     assert response.json() == {
         "next": None,
@@ -49,12 +74,13 @@ def test_albums_order_title_asc():
     assert response.json() == {
         "next": None,
         "results": [
-            {"date": "2019-08-16", "id": "1", "title": ""},
-            {"date": "2019-01-01", "id": "2", "title": "Album1"},
-            {"date": "2019-02-02", "id": "3", "title": "Album2"},
-            {"date": "2019-03-03", "id": "4", "title": "Album3"},
+            {"date": "2023-05-29", "id": "1", "title": ""},
+            {"date": "2019-01-01", "id": "2", "title": "Album 1"},
+            {"date": "2019-02-02", "id": "3", "title": "Album 2"},
+            {"date": "2019-03-03", "id": "4", "title": "Album 3"},
+            {"date": "2019-04-04", "id": "10", "title": "Album 4"},
         ],
-        "total": 4,
+        "total": 5,
     }
 
 
@@ -64,12 +90,13 @@ def test_albums_order_title_desc():
     assert response.json() == {
         "next": None,
         "results": [
-            {"date": "2019-03-03", "id": "4", "title": "Album3"},
-            {"date": "2019-02-02", "id": "3", "title": "Album2"},
-            {"date": "2019-01-01", "id": "2", "title": "Album1"},
-            {"date": "2019-08-16", "id": "1", "title": ""},
+            {"date": "2019-04-04", "id": "10", "title": "Album 4"},
+            {"date": "2019-03-03", "id": "4", "title": "Album 3"},
+            {"date": "2019-02-02", "id": "3", "title": "Album 2"},
+            {"date": "2019-01-01", "id": "2", "title": "Album 1"},
+            {"date": "2023-05-29", "id": "1", "title": ""},
         ],
-        "total": 4,
+        "total": 5,
     }
 
 
@@ -79,12 +106,13 @@ def test_albums_order_date_asc():
     assert response.json() == {
         "next": None,
         "results": [
-            {"date": "2019-01-01", "id": "2", "title": "Album1"},
-            {"date": "2019-02-02", "id": "3", "title": "Album2"},
-            {"date": "2019-03-03", "id": "4", "title": "Album3"},
-            {"date": "2019-08-16", "id": "1", "title": ""},
+            {"date": "2019-01-01", "id": "2", "title": "Album 1"},
+            {"date": "2019-02-02", "id": "3", "title": "Album 2"},
+            {"date": "2019-03-03", "id": "4", "title": "Album 3"},
+            {"date": "2019-04-04", "id": "10", "title": "Album 4"},
+            {"date": "2023-05-29", "id": "1", "title": ""},
         ],
-        "total": 4,
+        "total": 5,
     }
 
 
@@ -94,10 +122,11 @@ def test_albums_order_date_desc():
     assert response.json() == {
         "next": None,
         "results": [
-            {"date": "2019-08-16", "id": "1", "title": ""},
-            {"date": "2019-03-03", "id": "4", "title": "Album3"},
-            {"date": "2019-02-02", "id": "3", "title": "Album2"},
-            {"date": "2019-01-01", "id": "2", "title": "Album1"},
+            {"date": "2023-05-29", "id": "1", "title": ""},
+            {"date": "2019-04-04", "id": "10", "title": "Album 4"},
+            {"date": "2019-03-03", "id": "4", "title": "Album 3"},
+            {"date": "2019-02-02", "id": "3", "title": "Album 2"},
+            {"date": "2019-01-01", "id": "2", "title": "Album 1"},
         ],
-        "total": 4,
+        "total": 5,
     }

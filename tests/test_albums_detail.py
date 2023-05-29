@@ -15,7 +15,7 @@ def test_album_root():
     assert response.status_code == 200
     assert response.json() == {
         "breadcrumbs": [],
-        "date": "2019-08-16",
+        "date": "2023-05-29",
         "description": "",
         "id": "1",
         "title": "",
@@ -26,11 +26,11 @@ def test_album_depth_1():
     response = client.get("/api/v1/albums/2")
     assert response.status_code == 200
     assert response.json() == {
-        "breadcrumbs": [{"date": "2019-01-01", "id": "2", "title": "Album1"}],
+        "breadcrumbs": [{"date": "2019-01-01", "id": "2", "title": "Album 1"}],
         "date": "2019-01-01",
-        "description": "Caption for Album1",
+        "description": "Caption for Album 1",
         "id": "2",
-        "title": "Album1",
+        "title": "Album 1",
     }
 
 
@@ -39,11 +39,27 @@ def test_album_depth_2():
     assert response.status_code == 200
     assert response.json() == {
         "breadcrumbs": [
-            {"date": "2019-01-01", "id": "2", "title": "Album1"},
-            {"date": "2019-04-04", "id": "5", "title": "Album1.1"},
+            {"date": "2019-01-01", "id": "2", "title": "Album 1"},
+            {"date": "2020-01-01", "id": "5", "title": "Album 1.1"},
         ],
-        "date": "2019-04-04",
+        "date": "2020-01-01",
         "description": "",
         "id": "5",
-        "title": "Album1.1",
+        "title": "Album 1.1",
+    }
+
+
+def test_album_depth_3():
+    response = client.get("/api/v1/albums/7")
+    assert response.status_code == 200
+    assert response.json() == {
+        "breadcrumbs": [
+            {"date": "2019-01-01", "id": "2", "title": "Album 1"},
+            {"date": "2020-01-01", "id": "5", "title": "Album 1.1"},
+            {"date": "2020-01-01", "id": "7", "title": "Album 1.1.1"},
+        ],
+        "date": "2020-01-01",
+        "description": "",
+        "id": "7",
+        "title": "Album 1.1.1",
     }
