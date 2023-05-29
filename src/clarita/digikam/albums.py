@@ -43,7 +43,7 @@ async def list(
     if parent_album_id is None:
         # filter root albums
         query = """
-WITH album AS (SELECT id, relativePath path, date
+WITH album AS (SELECT id, relativePath title, date
                FROM Albums
                WHERE relativePath NOT LIKE '/%/%'
                  AND albumRoot NOT IN (?))
@@ -52,29 +52,31 @@ WITH album AS (SELECT id, relativePath path, date
     else:
         # Filter albums that are direct children of the given one.
         # relativePath of the parent will be something like /grandparent/parent, so
-        # use INSTR to find all other albums that start with that path
+        # we use INSTR to find all other albums that start with that path
         # https://sqlite.org/lang_corefunc.html#instr
-        # WITH is used to avoid repeating subqueries, the first one has the path of the
+        # WITH is used to avoid repeating subqueries, the first one finds the path of the
         # parent album and the second one filters only the direct descendants (those
         # with only one / character)
         query = """
-WITH parent AS (SELECT p.id, p.relativePath path
+WITH parent AS (SELECT p.id, p.relativePath path, p.albumRoot
                 FROM Albums p
-                WHERE p.id = ?),
-     album AS (SELECT a.id, SUBSTR(a.relativePath, LENGTH(parent.path)+2) path, date
+                WHERE id = ?
+                  AND albumRoot NOT IN (?)),
+     album AS (SELECT a.id, SUBSTR(a.relativePath, LENGTH(parent.path)+2) title, date
                FROM Albums a, parent
-               WHERE INSTR(a.relativePath, parent.path) == 1
-                 AND (LENGTH(path)-LENGTH(REPLACE(path, '/', ''))) = 1
+               WHERE INSTR(a.relativePath, parent.path) = 1
+                 AND INSTR(title, '/') = 0
                  AND a.id <> parent.id
-                 AND albumRoot NOT IN (?))
+                 AND a.albumRoot = parent.albumRoot
+                 )
 """
         params.append(parent_album_id)
         params.append(ignored_roots_str)
 
     if order is AlbumOrder.titleAsc:
-        order_by = "path ASC"
+        order_by = "title ASC"
     elif order is AlbumOrder.titleDesc:
-        order_by = "path DESC"
+        order_by = "title DESC"
     elif order is AlbumOrder.dateAsc:
         order_by = "date ASC"
     elif order is AlbumOrder.dateDesc:
@@ -85,7 +87,7 @@ WITH parent AS (SELECT p.id, p.relativePath path
     retrieve_query = (
         query
         + """
-SELECT id, path, date
+SELECT id, title, date
 FROM album
 ORDER BY %s
 LIMIT ?
