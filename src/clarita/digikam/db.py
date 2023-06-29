@@ -4,9 +4,9 @@ from pathlib import Path
 import aiosqlite
 
 from ..config import IgnoredRoots, RootMap
-from ..models import File
+from ..models import File, Thumbnail
 from ..types import AlbumOrder, PhotoOrder
-from . import albums, photos
+from . import albums, photos, thumbs
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ class DigikamBase:
     def connect_main_db(self):
         raise NotImplementedError()
 
-    def connect_thumbnail_db(self):
+    def connect_thumb_db(self):
         raise NotImplementedError()
 
     async def albums(
@@ -67,13 +67,17 @@ class DigikamBase:
         async with self.connect_main_db() as db:
             return await photos.get_filepath(db, photo_id, ignored_roots, root_map)
 
+    async def thumb_by_hash(self, thumb_hash: str) -> Thumbnail:
+        async with self.connect_thumb_db() as db:
+            return await thumbs.get_by_hash(db, thumb_hash)
+
 
 class DigikamMySQL(DigikamBase):
     def connect_main_db(self):
         # FIXME: not implemented
         raise NotImplementedError()
 
-    def connect_thumbnail_db(self):
+    def connect_thumb_db(self):
         # FIXME: not implemented
         raise NotImplementedError()
 
@@ -87,12 +91,12 @@ class DigikamSQLite(DigikamBase):
     def __init__(
         self,
         main_db_path: str | Path,
-        thumbnail_db_path: str | Path,
+        thumb_db_path: str | Path,
     ):
         self.main_db_path = main_db_path
         self.main_db_uri = "file:{}?mode=ro".format(self.main_db_path)
-        self.thumbnail_db_path = thumbnail_db_path
-        self.thumbnail_db_uri = "file:{}?mode=ro".format(self.thumbnail_db_path)
+        self.thumb_db_path = thumb_db_path
+        self.thumb_db_uri = "file:{}?mode=ro".format(self.thumb_db_path)
 
     def connect_main_db(self) -> aiosqlite.Connection:
         logger.debug(
@@ -105,14 +109,14 @@ class DigikamSQLite(DigikamBase):
             logger.exception("Error connecting to DB:", e)
         return conn
 
-    def connect_thumbnail_db(self) -> aiosqlite.Connection:
+    def connect_thumb_db(self) -> aiosqlite.Connection:
         logger.debug(
             "Attempting to connect to thumbnail Digikam SQLite DB %s",
-            self.thumbnail_db_uri,
+            self.thumb_db_uri,
         )
         try:
-            conn = aiosqlite.connect(self.thumbnail_db_uri, uri=True)
-            logger.info("Connected to thumbnail Digikam SQLite DB %s", self.main_db_uri)
+            conn = aiosqlite.connect(self.thumb_db_uri, uri=True)
+            logger.info("Connected to thumbnail Digikam SQLite DB %s", self.thumb_db_uri)
         except Exception as e:
-            logger.exception("Error connecting to thumbnail DB:", e)
+            logger.exception("Error connecting to thumb DB:", e)
         return conn

@@ -91,3 +91,29 @@ async def photo_file(photo_id: int, request: Request, response: Response):
                 if last_modified >= if_modified_since:
                     return Response(status_code=304)
     return FileResponse(photo_file.path)
+
+
+@app.get("/api/v1/thumbs/{thumb_hash}", response_class=FileResponse)
+async def thumb_file(thumb_hash: str, request: Request, response: Response):
+    thumb = await digikam.thumb_by_hash(thumb_hash)
+    if not thumb:
+        return Response(status_code=404)
+
+    if last_modified := thumb.last_modified:
+        response.headers["Last-Modified"] = last_modified.strftime(
+            HTTP_MODIFIED_DATE_FORMAT
+        )
+        if if_modified_since_raw := request.headers.get("If-Modified-Since"):
+            if if_modified_since := datetime.strptime(
+                if_modified_since_raw, HTTP_MODIFIED_DATE_FORMAT
+            ):
+                if last_modified >= if_modified_since:
+                    return Response(status_code=304)
+
+    if thumb.data.startswith(b"PGF"):
+        # FIXME: ignored by FastAPI, probably because it's not a proper mimetype
+        response.media_type = "image/pgf"
+
+    response.body = thumb.data
+    response.status_code = 200
+    return response

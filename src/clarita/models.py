@@ -26,6 +26,7 @@ class PhotoShort(BaseModel):
     filename: str
     title: str
     date_and_time: datetime.datetime | None = None
+    thumb_hash: str
 
 
 class AlbumShort(BaseModel):
@@ -66,3 +67,10 @@ class AlbumList(ListResponse):
     """Response for a list of albums"""
 
     results: List[AlbumShort]
+
+
+class Thumbnail(BaseModel):
+    data: bytes
+    last_modified: datetime.datetime
+    orientation: int
+    unique_hash: str
