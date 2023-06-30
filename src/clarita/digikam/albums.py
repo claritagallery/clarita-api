@@ -43,8 +43,9 @@ async def list(
     if parent_album_id is None:
         # filter root albums
         query = """
-WITH album AS (SELECT id, relativePath title, date
-               FROM Albums
+WITH album AS (SELECT a.id, a.relativePath title, a.date, i.uniqueHash
+               FROM Albums a
+               LEFT JOIN Images i ON i.id = a.icon
                WHERE relativePath NOT LIKE '/%/%'
                  AND albumRoot NOT IN (?))
 """
@@ -60,10 +61,11 @@ WITH album AS (SELECT id, relativePath title, date
         query = """
 WITH parent AS (SELECT p.id, p.relativePath path, p.albumRoot
                 FROM Albums p
-                WHERE id = ?
+                WHERE p.id = ?
                   AND albumRoot NOT IN (?)),
-     album AS (SELECT a.id, SUBSTR(a.relativePath, LENGTH(parent.path)+2) title, date
+     album AS (SELECT a.id, SUBSTR(a.relativePath, LENGTH(parent.path)+2) title, a.date, i.uniqueHash
                FROM Albums a, parent
+               LEFT JOIN Images i ON i.id = a.icon
                WHERE INSTR(a.relativePath, parent.path) = 1
                  AND INSTR(title, '/') = 0
                  AND a.id <> parent.id
@@ -87,7 +89,7 @@ WITH parent AS (SELECT p.id, p.relativePath path, p.albumRoot
     retrieve_query = (
         query
         + """
-SELECT id, title, date
+SELECT id, title, date, uniqueHash
 FROM album
 ORDER BY %s
 LIMIT ?
@@ -103,6 +105,7 @@ OFFSET ?
                 id=str(row[0]),
                 title=path.basename(row[1]),
                 date=date.fromisoformat(row[2]),
+                thumb_hash=row[3],
             )
         )
     await cursor.close()
@@ -125,12 +128,14 @@ async def get(db, album_id: int, ignored_roots: IgnoredRoots):
     logger.info("albums get album_id=%s ignored_roots=%r", album_id, ignored_roots)
     cursor = await db.execute(
         """
-SELECT relativePath,
-       date,
-       COALESCE(caption, '') as caption,
-       COALESCE(collection, '') as collection
-FROM Albums
-WHERE id=?
+SELECT a.relativePath,
+       a.date,
+       COALESCE(a.caption, '') as caption,
+       COALESCE(a.collection, '') as collection,
+       i.uniqueHash
+FROM Albums a
+LEFT JOIN Images i ON i.id = a.icon
+WHERE a.id=?
   AND albumRoot NOT IN (?)
         """,
         (album_id, ",".join(str(r) for r in ignored_roots)),
@@ -146,6 +151,7 @@ WHERE id=?
         date=date.fromisoformat(albumrow[1]),
         description=albumrow[2],
         breadcrumbs=breadcrumbs,
+        thumb_hash=albumrow[4],
     )
 
     await cursor.close()
