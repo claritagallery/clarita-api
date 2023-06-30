@@ -35,6 +35,7 @@ class AlbumShort(BaseModel):
     id: str
     title: str
     date: datetime.date | None = None
+    thumb_hash: str | None = None
 
 
 class PhotoFull(PhotoShort):
