@@ -17,6 +17,7 @@ def test_photos_no_album():
                 "filename": "11.jpg",
                 "title": "11.jpg",
                 "date_and_time": "2013-07-01T00:00:00",
+                "rating": 2,
                 "thumb_hash": "cfbe4f47262da4b076def74bff2d6d70",
             },
             {
@@ -24,6 +25,7 @@ def test_photos_no_album():
                 "filename": "12.jpg",
                 "title": "12.jpg",
                 "date_and_time": "2013-07-11T02:00:00",
+                "rating": 1,
                 "thumb_hash": "6e5d59497652540170a059976d5b3e93",
             },
             {
@@ -31,6 +33,7 @@ def test_photos_no_album():
                 "filename": "13.jpg",
                 "title": "13.jpg",
                 "date_and_time": "2013-07-21T04:00:00",
+                "rating": 1,
                 "thumb_hash": "90b9484ea4d1f581b2b51957e6ab270d",
             },
             {
@@ -38,6 +41,7 @@ def test_photos_no_album():
                 "filename": "14.jpg",
                 "title": "14.jpg",
                 "date_and_time": "2013-07-31T06:00:00",
+                "rating": 2,
                 "thumb_hash": "1ee5462e76a81ec77489e688495c1544",
             },
             {
@@ -45,6 +49,7 @@ def test_photos_no_album():
                 "filename": "15.jpg",
                 "title": "15.jpg",
                 "date_and_time": "2013-08-10T08:00:00",
+                "rating": 1,
                 "thumb_hash": "33235b07b1f9b9d7a13ae583e6fb2498",
             },
             {
@@ -52,6 +57,7 @@ def test_photos_no_album():
                 "filename": "16.jpg",
                 "title": "Dying glacier",
                 "date_and_time": "2013-08-20T10:00:00",
+                "rating": -1,
                 "thumb_hash": "ebad7402aef851da33219e9f1a3e47a1",
             },
             {
@@ -59,6 +65,7 @@ def test_photos_no_album():
                 "filename": "17.jpg",
                 "title": "Dying glacier",
                 "date_and_time": "2013-08-30T12:00:00",
+                "rating": -1,
                 "thumb_hash": "08bd1358a2b27a8e8b2580f7f9d95163",
             },
             {
@@ -66,6 +73,7 @@ def test_photos_no_album():
                 "filename": "18.jpg",
                 "title": "Cascada y arcoiris",
                 "date_and_time": "2013-09-09T14:00:00",
+                "rating": 5,
                 "thumb_hash": "8e2fd7d5972aacc586b6f8d0980af04e",
             },
             {
@@ -73,6 +81,7 @@ def test_photos_no_album():
                 "filename": "19.jpg",
                 "title": "19.jpg",
                 "date_and_time": "2013-09-19T16:00:00",
+                "rating": 4,
                 "thumb_hash": "fdb533dc009999e6a6180d33b1996a6f",
             },
             {
@@ -80,6 +89,7 @@ def test_photos_no_album():
                 "filename": "01.jpg",
                 "title": "Slope Point",
                 "date_and_time": "2017-06-01T00:00:00",
+                "rating": 3,
                 "thumb_hash": "960a6eff870adba78f304f67f0f9aba5",
             },
             {
@@ -87,6 +97,7 @@ def test_photos_no_album():
                 "filename": "02.jpg",
                 "title": "02.jpg",
                 "date_and_time": "2017-06-11T02:00:00",
+                "rating": -1,
                 "thumb_hash": "02908f19bef987f9c2f0d5b3b2825abf",
             },
             {
@@ -94,6 +105,7 @@ def test_photos_no_album():
                 "filename": "03.jpg",
                 "title": "03.jpg",
                 "date_and_time": "2017-06-21T04:00:00",
+                "rating": -1,
                 "thumb_hash": "bbb06679d920e08504053de912763f46",
             },
             {
@@ -101,6 +113,7 @@ def test_photos_no_album():
                 "filename": "04.jpg",
                 "title": "04.jpg",
                 "date_and_time": "2017-07-01T06:00:00",
+                "rating": -1,
                 "thumb_hash": "18686b598cbb0642e76b6c34b5c9a214",
             },
             {
@@ -108,6 +121,7 @@ def test_photos_no_album():
                 "filename": "05.jpg",
                 "title": "05.jpg",
                 "date_and_time": "2017-07-11T08:00:00",
+                "rating": -1,
                 "thumb_hash": "702b54a0b038e32d3718b01d14680c9f",
             },
             {
@@ -115,6 +129,7 @@ def test_photos_no_album():
                 "filename": "06.jpg",
                 "title": "06.jpg",
                 "date_and_time": "2017-07-21T10:00:00",
+                "rating": -1,
                 "thumb_hash": "d1e60f87fca31a3951849c4ab6f91fde",
             },
             {
@@ -122,6 +137,7 @@ def test_photos_no_album():
                 "filename": "07.jpg",
                 "title": "Camino Inca",
                 "date_and_time": "2017-07-31T12:00:00",
+                "rating": -1,
                 "thumb_hash": "a3e1091611275f09940b990725d88732",
             },
             {
@@ -129,6 +145,7 @@ def test_photos_no_album():
                 "filename": "08.jpg",
                 "title": "Camino Inca",
                 "date_and_time": "2017-08-10T14:00:00",
+                "rating": -1,
                 "thumb_hash": "f6a3c2239b5a3d56019b3e3aee616289",
             },
             {
@@ -136,6 +153,7 @@ def test_photos_no_album():
                 "filename": "09.jpg",
                 "title": "Camino Inca",
                 "date_and_time": "2017-08-20T16:00:00",
+                "rating": -1,
                 "thumb_hash": "1203145bfeb89a8fee73e9119dec13b2",
             },
             {
@@ -143,6 +161,7 @@ def test_photos_no_album():
                 "filename": "10.jpg",
                 "title": "Camino Inca",
                 "date_and_time": "2017-08-30T18:00:00",
+                "rating": -1,
                 "thumb_hash": "eeb4f6bcbcc77fad1e43d0da6dabdc09",
             },
             {
@@ -150,6 +169,7 @@ def test_photos_no_album():
                 "filename": "01.jpg",
                 "title": "01.jpg",
                 "date_and_time": "2018-04-01T00:00:00",
+                "rating": 1,
                 "thumb_hash": "1eebda921e8823abd40f9ca32b380774",
             },
             {
@@ -157,6 +177,7 @@ def test_photos_no_album():
                 "filename": "02.jpg",
                 "title": "Black swan event",
                 "date_and_time": "2018-04-11T02:00:00",
+                "rating": 3,
                 "thumb_hash": "6b4ade1a3c8797eead77c8e8eeb9c56d",
             },
             {
@@ -164,6 +185,7 @@ def test_photos_no_album():
                 "filename": "03.jpg",
                 "title": "03.jpg",
                 "date_and_time": "2018-04-21T04:00:00",
+                "rating": 1,
                 "thumb_hash": "4d5e4cbd5f9f41ec8524a7d29c540203",
             },
             {
@@ -171,6 +193,7 @@ def test_photos_no_album():
                 "filename": "04.jpg",
                 "title": "04.jpg",
                 "date_and_time": "2018-05-01T06:00:00",
+                "rating": 3,
                 "thumb_hash": "efffed2c52389198083f6eb2ddd48181",
             },
             {
@@ -178,6 +201,7 @@ def test_photos_no_album():
                 "filename": "05.jpg",
                 "title": "Milford Sound",
                 "date_and_time": "2018-05-11T08:00:00",
+                "rating": 2,
                 "thumb_hash": "1701c77aceedf31401dc26cb0b103468",
             },
             {
@@ -185,6 +209,7 @@ def test_photos_no_album():
                 "filename": "06.jpg",
                 "title": "Milford Sound",
                 "date_and_time": "2018-05-21T10:00:00",
+                "rating": -1,
                 "thumb_hash": "0d4b11b9a30ab3c8d13c51079d3dc52d",
             },
             {
@@ -192,6 +217,7 @@ def test_photos_no_album():
                 "filename": "07.jpg",
                 "title": "Milford Sound",
                 "date_and_time": "2018-05-31T12:00:00",
+                "rating": -1,
                 "thumb_hash": "15135e65a222413e0e8a0a9507573b98",
             },
             {
@@ -199,6 +225,7 @@ def test_photos_no_album():
                 "filename": "08.jpg",
                 "title": "Milford Sound",
                 "date_and_time": "2018-06-10T14:00:00",
+                "rating": -1,
                 "thumb_hash": "cd6cc862b3e7f57c5339e385f84d0d56",
             },
             {
@@ -206,6 +233,7 @@ def test_photos_no_album():
                 "filename": "09.jpg",
                 "title": "Milford Sound",
                 "date_and_time": "2018-06-20T16:00:00",
+                "rating": -1,
                 "thumb_hash": "5a812a619f225076d125c76b685b88a7",
             },
             {
@@ -213,6 +241,7 @@ def test_photos_no_album():
                 "filename": "10.jpg",
                 "title": "Milford Sound",
                 "date_and_time": "2018-06-30T18:00:00",
+                "rating": -1,
                 "thumb_hash": "b16ce82cf320841fa7dd9a90c75b604f",
             },
             {
@@ -220,6 +249,7 @@ def test_photos_no_album():
                 "filename": "06.jpg",
                 "title": "Natural mohawk",
                 "date_and_time": "2019-04-25T13:38:52",
+                "rating": 4,
                 "thumb_hash": "df63f0a1bc80460e0392aba176a771dc",
             },
             {
@@ -227,6 +257,7 @@ def test_photos_no_album():
                 "filename": "01.jpg",
                 "title": "01.jpg",
                 "date_and_time": "2019-07-19T08:59:17",
+                "rating": 1,
                 "thumb_hash": "bb1ca471afb42a923c413ea0eec8e271",
             },
             {
@@ -234,6 +265,7 @@ def test_photos_no_album():
                 "filename": "02.jpg",
                 "title": "02.jpg",
                 "date_and_time": "2019-09-12T19:49:43",
+                "rating": 0,
                 "thumb_hash": "d862b59c5ce0aa77eb9c0858808fb33a",
             },
             {
@@ -241,6 +273,7 @@ def test_photos_no_album():
                 "filename": "08.jpg",
                 "title": "08.jpg",
                 "date_and_time": "2020-01-05T14:33:50",
+                "rating": 3,
                 "thumb_hash": "c8f5093a15004892317b8156b85e1e9a",
             },
             {
@@ -248,6 +281,7 @@ def test_photos_no_album():
                 "filename": "09.jpg",
                 "title": "09.jpg",
                 "date_and_time": "2020-01-15T17:33:07",
+                "rating": 5,
                 "thumb_hash": "374339784ccc5ae1d6ddb08c1e2e8b22",
             },
             {
@@ -255,6 +289,7 @@ def test_photos_no_album():
                 "filename": "08.jpg",
                 "title": "08.jpg",
                 "date_and_time": "2020-03-08T12:26:19",
+                "rating": 5,
                 "thumb_hash": "9ae27d36808d1f81cd9b5df275a6b578",
             },
             {
@@ -262,6 +297,7 @@ def test_photos_no_album():
                 "filename": "03.jpg",
                 "title": "03.jpg",
                 "date_and_time": "2020-07-14T17:27:18",
+                "rating": 0,
                 "thumb_hash": "13b059d39e12dc3f62cafa05ffd85ab7",
             },
             {
@@ -269,6 +305,7 @@ def test_photos_no_album():
                 "filename": "07.jpg",
                 "title": "07.jpg",
                 "date_and_time": "2020-09-05T18:18:12",
+                "rating": 5,
                 "thumb_hash": "575eb63bcaed0d218a934aaddfb1fa7c",
             },
             {
@@ -276,6 +313,7 @@ def test_photos_no_album():
                 "filename": "06.jpg",
                 "title": "06.jpg",
                 "date_and_time": "2020-12-05T10:04:23",
+                "rating": 2,
                 "thumb_hash": "89a0daa71072f9df9b1bfda591a36dd3",
             },
             {
@@ -283,6 +321,7 @@ def test_photos_no_album():
                 "filename": "07.jpg",
                 "title": "07.jpg",
                 "date_and_time": "2020-12-05T16:18:59",
+                "rating": 4,
                 "thumb_hash": "3467c5e6cc2337a5bd208d16844cd9a1",
             },
             {
@@ -290,6 +329,7 @@ def test_photos_no_album():
                 "filename": "04.jpg",
                 "title": "04.jpg",
                 "date_and_time": "2021-06-25T16:12:39",
+                "rating": 5,
                 "thumb_hash": "88ef7a69691f6d965df146a96a155eef",
             },
             {
@@ -297,6 +337,7 @@ def test_photos_no_album():
                 "filename": "01.jpg",
                 "title": "Icecream!",
                 "date_and_time": "2021-10-09T16:24:01",
+                "rating": 5,
                 "thumb_hash": "9fa1106d25b7701e4b0b000804924dca",
             },
             {
@@ -304,6 +345,7 @@ def test_photos_no_album():
                 "filename": "02.jpg",
                 "title": "Icecream!",
                 "date_and_time": "2021-10-09T16:36:17",
+                "rating": 5,
                 "thumb_hash": "99c7ca6f440e843be08b5328223c9f21",
             },
             {
@@ -311,6 +353,7 @@ def test_photos_no_album():
                 "filename": "05.jpg",
                 "title": "Enjoying the bounty",
                 "date_and_time": "2022-01-05T17:35:36",
+                "rating": 3,
                 "thumb_hash": "3a07dcafa5ca53f78601d831feade54b",
             },
             {
@@ -318,6 +361,7 @@ def test_photos_no_album():
                 "filename": "05.jpg",
                 "title": "05.jpg",
                 "date_and_time": "2022-07-06T12:53:41",
+                "rating": 5,
                 "thumb_hash": "f3c3889994b3b63bb8ed5c84fec91e2b",
             },
             {
@@ -325,6 +369,7 @@ def test_photos_no_album():
                 "filename": "03.jpg",
                 "title": "Traje de flamenca",
                 "date_and_time": "2023-04-23T15:44:11",
+                "rating": 5,
                 "thumb_hash": "f1e727c64dff721d6ed437cf6976281c",
             },
             {
@@ -332,6 +377,7 @@ def test_photos_no_album():
                 "filename": "04.jpg",
                 "title": "Traje de flamenca",
                 "date_and_time": "2023-04-23T15:54:15",
+                "rating": 5,
                 "thumb_hash": "8be03f39750e220467d8d4aa45b05e74",
             },
         ],
@@ -350,6 +396,7 @@ def test_photos_with_album():
                 "filename": "06.jpg",
                 "title": "Natural mohawk",
                 "date_and_time": "2019-04-25T13:38:52",
+                "rating": 4,
                 "thumb_hash": "df63f0a1bc80460e0392aba176a771dc",
             },
             {
@@ -357,6 +404,7 @@ def test_photos_with_album():
                 "filename": "08.jpg",
                 "title": "08.jpg",
                 "date_and_time": "2020-03-08T12:26:19",
+                "rating": 5,
                 "thumb_hash": "9ae27d36808d1f81cd9b5df275a6b578",
             },
             {
@@ -364,6 +412,7 @@ def test_photos_with_album():
                 "filename": "07.jpg",
                 "title": "07.jpg",
                 "date_and_time": "2020-09-05T18:18:12",
+                "rating": 5,
                 "thumb_hash": "575eb63bcaed0d218a934aaddfb1fa7c",
             },
             {
@@ -371,6 +420,7 @@ def test_photos_with_album():
                 "filename": "01.jpg",
                 "title": "Icecream!",
                 "date_and_time": "2021-10-09T16:24:01",
+                "rating": 5,
                 "thumb_hash": "9fa1106d25b7701e4b0b000804924dca",
             },
             {
@@ -378,6 +428,7 @@ def test_photos_with_album():
                 "filename": "02.jpg",
                 "title": "Icecream!",
                 "date_and_time": "2021-10-09T16:36:17",
+                "rating": 5,
                 "thumb_hash": "99c7ca6f440e843be08b5328223c9f21",
             },
             {
@@ -385,6 +436,7 @@ def test_photos_with_album():
                 "filename": "05.jpg",
                 "title": "05.jpg",
                 "date_and_time": "2022-07-06T12:53:41",
+                "rating": 5,
                 "thumb_hash": "f3c3889994b3b63bb8ed5c84fec91e2b",
             },
             {
@@ -392,6 +444,7 @@ def test_photos_with_album():
                 "filename": "03.jpg",
                 "title": "Traje de flamenca",
                 "date_and_time": "2023-04-23T15:44:11",
+                "rating": 5,
                 "thumb_hash": "f1e727c64dff721d6ed437cf6976281c",
             },
             {
@@ -399,6 +452,7 @@ def test_photos_with_album():
                 "filename": "04.jpg",
                 "title": "Traje de flamenca",
                 "date_and_time": "2023-04-23T15:54:15",
+                "rating": 5,
                 "thumb_hash": "8be03f39750e220467d8d4aa45b05e74",
             },
         ],
@@ -417,6 +471,7 @@ def test_photos_limit_and_offset():
                 "filename": "11.jpg",
                 "title": "11.jpg",
                 "date_and_time": "2013-07-01T00:00:00",
+                "rating": 2,
                 "thumb_hash": "cfbe4f47262da4b076def74bff2d6d70",
             },
             {
@@ -424,6 +479,7 @@ def test_photos_limit_and_offset():
                 "filename": "12.jpg",
                 "title": "12.jpg",
                 "date_and_time": "2013-07-11T02:00:00",
+                "rating": 1,
                 "thumb_hash": "6e5d59497652540170a059976d5b3e93",
             },
         ],
@@ -439,6 +495,7 @@ def test_photos_limit_and_offset():
                 "filename": "13.jpg",
                 "title": "13.jpg",
                 "date_and_time": "2013-07-21T04:00:00",
+                "rating": 1,
                 "thumb_hash": "90b9484ea4d1f581b2b51957e6ab270d",
             },
             {
@@ -446,6 +503,7 @@ def test_photos_limit_and_offset():
                 "filename": "14.jpg",
                 "title": "14.jpg",
                 "date_and_time": "2013-07-31T06:00:00",
+                "rating": 2,
                 "thumb_hash": "1ee5462e76a81ec77489e688495c1544",
             },
         ],
@@ -464,6 +522,7 @@ def test_photos_order_title_asc():
                 "filename": "05.jpg",
                 "title": "05.jpg",
                 "date_and_time": "2022-07-06T12:53:41",
+                "rating": 5,
                 "thumb_hash": "f3c3889994b3b63bb8ed5c84fec91e2b",
             },
             {
@@ -471,6 +530,7 @@ def test_photos_order_title_asc():
                 "filename": "07.jpg",
                 "title": "07.jpg",
                 "date_and_time": "2020-09-05T18:18:12",
+                "rating": 5,
                 "thumb_hash": "575eb63bcaed0d218a934aaddfb1fa7c",
             },
             {
@@ -478,6 +538,7 @@ def test_photos_order_title_asc():
                 "filename": "08.jpg",
                 "title": "08.jpg",
                 "date_and_time": "2020-03-08T12:26:19",
+                "rating": 5,
                 "thumb_hash": "9ae27d36808d1f81cd9b5df275a6b578",
             },
             {
@@ -485,6 +546,7 @@ def test_photos_order_title_asc():
                 "filename": "01.jpg",
                 "title": "Icecream!",
                 "date_and_time": "2021-10-09T16:24:01",
+                "rating": 5,
                 "thumb_hash": "9fa1106d25b7701e4b0b000804924dca",
             },
             {
@@ -492,6 +554,7 @@ def test_photos_order_title_asc():
                 "filename": "02.jpg",
                 "title": "Icecream!",
                 "date_and_time": "2021-10-09T16:36:17",
+                "rating": 5,
                 "thumb_hash": "99c7ca6f440e843be08b5328223c9f21",
             },
             {
@@ -499,6 +562,7 @@ def test_photos_order_title_asc():
                 "filename": "06.jpg",
                 "title": "Natural mohawk",
                 "date_and_time": "2019-04-25T13:38:52",
+                "rating": 4,
                 "thumb_hash": "df63f0a1bc80460e0392aba176a771dc",
             },
             {
@@ -506,6 +570,7 @@ def test_photos_order_title_asc():
                 "filename": "03.jpg",
                 "title": "Traje de flamenca",
                 "date_and_time": "2023-04-23T15:44:11",
+                "rating": 5,
                 "thumb_hash": "f1e727c64dff721d6ed437cf6976281c",
             },
             {
@@ -513,6 +578,7 @@ def test_photos_order_title_asc():
                 "filename": "04.jpg",
                 "title": "Traje de flamenca",
                 "date_and_time": "2023-04-23T15:54:15",
+                "rating": 5,
                 "thumb_hash": "8be03f39750e220467d8d4aa45b05e74",
             },
         ],
@@ -531,6 +597,7 @@ def test_photos_order_title_desc():
                 "filename": "04.jpg",
                 "title": "Traje de flamenca",
                 "date_and_time": "2023-04-23T15:54:15",
+                "rating": 5,
                 "thumb_hash": "8be03f39750e220467d8d4aa45b05e74",
             },
             {
@@ -538,6 +605,7 @@ def test_photos_order_title_desc():
                 "filename": "03.jpg",
                 "title": "Traje de flamenca",
                 "date_and_time": "2023-04-23T15:44:11",
+                "rating": 5,
                 "thumb_hash": "f1e727c64dff721d6ed437cf6976281c",
             },
             {
@@ -545,6 +613,7 @@ def test_photos_order_title_desc():
                 "filename": "06.jpg",
                 "title": "Natural mohawk",
                 "date_and_time": "2019-04-25T13:38:52",
+                "rating": 4,
                 "thumb_hash": "df63f0a1bc80460e0392aba176a771dc",
             },
             {
@@ -552,6 +621,7 @@ def test_photos_order_title_desc():
                 "filename": "02.jpg",
                 "title": "Icecream!",
                 "date_and_time": "2021-10-09T16:36:17",
+                "rating": 5,
                 "thumb_hash": "99c7ca6f440e843be08b5328223c9f21",
             },
             {
@@ -559,6 +629,7 @@ def test_photos_order_title_desc():
                 "filename": "01.jpg",
                 "title": "Icecream!",
                 "date_and_time": "2021-10-09T16:24:01",
+                "rating": 5,
                 "thumb_hash": "9fa1106d25b7701e4b0b000804924dca",
             },
             {
@@ -566,6 +637,7 @@ def test_photos_order_title_desc():
                 "filename": "08.jpg",
                 "title": "08.jpg",
                 "date_and_time": "2020-03-08T12:26:19",
+                "rating": 5,
                 "thumb_hash": "9ae27d36808d1f81cd9b5df275a6b578",
             },
             {
@@ -573,6 +645,7 @@ def test_photos_order_title_desc():
                 "filename": "07.jpg",
                 "title": "07.jpg",
                 "date_and_time": "2020-09-05T18:18:12",
+                "rating": 5,
                 "thumb_hash": "575eb63bcaed0d218a934aaddfb1fa7c",
             },
             {
@@ -580,6 +653,7 @@ def test_photos_order_title_desc():
                 "filename": "05.jpg",
                 "title": "05.jpg",
                 "date_and_time": "2022-07-06T12:53:41",
+                "rating": 5,
                 "thumb_hash": "f3c3889994b3b63bb8ed5c84fec91e2b",
             },
         ],
@@ -598,6 +672,7 @@ def test_photos_order_date_and_time_asc():
                 "filename": "06.jpg",
                 "title": "Natural mohawk",
                 "date_and_time": "2019-04-25T13:38:52",
+                "rating": 4,
                 "thumb_hash": "df63f0a1bc80460e0392aba176a771dc",
             },
             {
@@ -605,6 +680,7 @@ def test_photos_order_date_and_time_asc():
                 "filename": "08.jpg",
                 "title": "08.jpg",
                 "date_and_time": "2020-03-08T12:26:19",
+                "rating": 5,
                 "thumb_hash": "9ae27d36808d1f81cd9b5df275a6b578",
             },
             {
@@ -612,6 +688,7 @@ def test_photos_order_date_and_time_asc():
                 "filename": "07.jpg",
                 "title": "07.jpg",
                 "date_and_time": "2020-09-05T18:18:12",
+                "rating": 5,
                 "thumb_hash": "575eb63bcaed0d218a934aaddfb1fa7c",
             },
             {
@@ -619,6 +696,7 @@ def test_photos_order_date_and_time_asc():
                 "filename": "01.jpg",
                 "title": "Icecream!",
                 "date_and_time": "2021-10-09T16:24:01",
+                "rating": 5,
                 "thumb_hash": "9fa1106d25b7701e4b0b000804924dca",
             },
             {
@@ -626,6 +704,7 @@ def test_photos_order_date_and_time_asc():
                 "filename": "02.jpg",
                 "title": "Icecream!",
                 "date_and_time": "2021-10-09T16:36:17",
+                "rating": 5,
                 "thumb_hash": "99c7ca6f440e843be08b5328223c9f21",
             },
             {
@@ -633,6 +712,7 @@ def test_photos_order_date_and_time_asc():
                 "filename": "05.jpg",
                 "title": "05.jpg",
                 "date_and_time": "2022-07-06T12:53:41",
+                "rating": 5,
                 "thumb_hash": "f3c3889994b3b63bb8ed5c84fec91e2b",
             },
             {
@@ -640,6 +720,7 @@ def test_photos_order_date_and_time_asc():
                 "filename": "03.jpg",
                 "title": "Traje de flamenca",
                 "date_and_time": "2023-04-23T15:44:11",
+                "rating": 5,
                 "thumb_hash": "f1e727c64dff721d6ed437cf6976281c",
             },
             {
@@ -647,6 +728,7 @@ def test_photos_order_date_and_time_asc():
                 "filename": "04.jpg",
                 "title": "Traje de flamenca",
                 "date_and_time": "2023-04-23T15:54:15",
+                "rating": 5,
                 "thumb_hash": "8be03f39750e220467d8d4aa45b05e74",
             },
         ],
@@ -665,6 +747,7 @@ def test_photos_order_date_and_time_desc():
                 "filename": "04.jpg",
                 "title": "Traje de flamenca",
                 "date_and_time": "2023-04-23T15:54:15",
+                "rating": 5,
                 "thumb_hash": "8be03f39750e220467d8d4aa45b05e74",
             },
             {
@@ -672,6 +755,7 @@ def test_photos_order_date_and_time_desc():
                 "filename": "03.jpg",
                 "title": "Traje de flamenca",
                 "date_and_time": "2023-04-23T15:44:11",
+                "rating": 5,
                 "thumb_hash": "f1e727c64dff721d6ed437cf6976281c",
             },
             {
@@ -679,6 +763,7 @@ def test_photos_order_date_and_time_desc():
                 "filename": "05.jpg",
                 "title": "05.jpg",
                 "date_and_time": "2022-07-06T12:53:41",
+                "rating": 5,
                 "thumb_hash": "f3c3889994b3b63bb8ed5c84fec91e2b",
             },
             {
@@ -686,6 +771,7 @@ def test_photos_order_date_and_time_desc():
                 "filename": "02.jpg",
                 "title": "Icecream!",
                 "date_and_time": "2021-10-09T16:36:17",
+                "rating": 5,
                 "thumb_hash": "99c7ca6f440e843be08b5328223c9f21",
             },
             {
@@ -693,6 +779,7 @@ def test_photos_order_date_and_time_desc():
                 "filename": "01.jpg",
                 "title": "Icecream!",
                 "date_and_time": "2021-10-09T16:24:01",
+                "rating": 5,
                 "thumb_hash": "9fa1106d25b7701e4b0b000804924dca",
             },
             {
@@ -700,6 +787,7 @@ def test_photos_order_date_and_time_desc():
                 "filename": "07.jpg",
                 "title": "07.jpg",
                 "date_and_time": "2020-09-05T18:18:12",
+                "rating": 5,
                 "thumb_hash": "575eb63bcaed0d218a934aaddfb1fa7c",
             },
             {
@@ -707,6 +795,7 @@ def test_photos_order_date_and_time_desc():
                 "filename": "08.jpg",
                 "title": "08.jpg",
                 "date_and_time": "2020-03-08T12:26:19",
+                "rating": 5,
                 "thumb_hash": "9ae27d36808d1f81cd9b5df275a6b578",
             },
             {
@@ -714,6 +803,7 @@ def test_photos_order_date_and_time_desc():
                 "filename": "06.jpg",
                 "title": "Natural mohawk",
                 "date_and_time": "2019-04-25T13:38:52",
+                "rating": 4,
                 "thumb_hash": "df63f0a1bc80460e0392aba176a771dc",
             },
         ],
