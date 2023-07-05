@@ -1,6 +1,6 @@
 from typing import Dict, List, Set
 
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 
 IgnoredRoots = Set[int]
 RootMap = Dict[int, str]

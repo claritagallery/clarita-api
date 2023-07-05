@@ -33,11 +33,11 @@ source = ["src"]
 [tool.coverage.report]
 show_missing = true
 
-[tool.isort]
-profile = "black"
-line_length = 90
-multi_line_output = 3
-src_paths = ["src"]
+[tool.ruff]
+line-length = 90
+
+[tool.ruff.isort]
+known-first-party = ["clarita"]
 
 [tool.mypy]
 mypy_path = "./src"
