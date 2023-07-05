@@ -7,22 +7,16 @@ repos:
   - id: check-yaml
   - id: check-merge-conflict
   - id: debug-statements
-- repo: https://github.com/PyCQA/isort
-  rev: 5.12.0
-  hooks:
-  - id: isort
-    args: [--filter-files, src/]
 - repo: https://github.com/psf/black
   rev: 23.3.0
   hooks:
   - id: black
     exclude: migrations
     args: [--check,--config=pyproject.toml]
-- repo: https://github.com/PyCQA/flake8
-  rev: 6.0.0
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.0.277
   hooks:
-  - id: flake8
-    args: [--config=setup.cfg]
+    - id: ruff
 - repo: local
   hooks:
     - id: mypy

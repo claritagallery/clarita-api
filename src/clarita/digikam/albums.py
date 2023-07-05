@@ -63,7 +63,11 @@ WITH parent AS (SELECT p.id, p.relativePath path, p.albumRoot
                 FROM Albums p
                 WHERE p.id = ?
                   AND albumRoot NOT IN (?)),
-     album AS (SELECT a.id, SUBSTR(a.relativePath, LENGTH(parent.path)+2) title, a.date, i.uniqueHash
+     album AS (SELECT a.id,
+                      SUBSTR(a.relativePath,
+                      LENGTH(parent.path)+2) title,
+                      a.date,
+                      i.uniqueHash
                FROM Albums a, parent
                LEFT JOIN Images i ON i.id = a.icon
                WHERE INSTR(a.relativePath, parent.path) = 1
