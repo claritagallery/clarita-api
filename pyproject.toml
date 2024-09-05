@@ -1,27 +1,23 @@
 [build-system]
-# These are the assumed default build requirements from pip:
-# https://pip.pypa.io/en/stable/reference/pip/#pep-517-and-518-support
-requires = ["setuptools>=40.8.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.black]
-line-length = 90
-target-version = ['py37', 'py38', 'py39']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
+[project]
+name = "clarita-api"
+version = "0.1.0"
+description = "API server for the Clarita web gallery"
+authors = [
+    { name = "Fidel Ramos", email = "contact.gyldd@8shield.net" }
+]
+dependencies = [
+    "fastapi>=0.112.2",
+    "pydantic-settings>=2.4.0",
+    "python-dotenv>=1.0.1",
+    "aiosqlite>=0.20.0",
+    "uvicorn>=0.30.6",
+]
+readme = "README.md"
+requires-python = ">= 3.10"
 
 [tool.coverage.paths]
 source = ["src"]
@@ -33,11 +29,11 @@ source = ["src"]
 [tool.coverage.report]
 show_missing = true
 
-[tool.ruff]
-line-length = 90
+[tool.hatch.metadata]
+allow-direct-references = true
 
-[tool.ruff.isort]
-known-first-party = ["clarita"]
+[tool.hatch.build.targets.wheel]
+packages = ["src/clarita"]
 
 [tool.mypy]
 mypy_path = "./src"
@@ -63,3 +59,37 @@ addopts = [
     "--import-mode=importlib",
 ]
 pythonpath = "src"
+
+[tool.pytest_env]
+CORS_ORIGINS = "[\"*\"]"
+DATABASE_MAIN_PATH = "tests/digikam_db/digikam4.db"
+DATABASE_THUMBNAIL_PATH = "tests/digikam_db/thumbnails-digikam.db"
+#ROOT_MAP = {value = "{\"1\": \"{PWD}/tests/images/\"}", transform = true}
+ROOT_MAP = "{\"1\": \"tests/images/\"}"
+
+[tool.ruff]
+line-length = 90
+
+[tool.ruff.lint.isort]
+known-first-party = ["clarita"]
+
+[tool.rye]
+generate-hashes = true
+managed = true
+virtual = true
+dev-dependencies = [
+    "httpx>=0.27.2",
+    "mypy>=1.11.2",
+    "pre-commit>=3.8.0",
+    "pytest>=8.3.2",
+    "pytest-env>=1.1.3",
+    "python-lsp-server[rope]>=1.12.0",
+    "python-lsp-ruff>=2.2.2",
+    "pylsp-mypy>=0.6.9",
+    "ipython>=8.27.0",
+]
+
+[tool.rye.scripts]
+dev = { cmd = "uvicorn  --app-dir src clarita.main:app --reload" }
+start = { cmd = "uvicorn --app-dir src clarita.main:app" }
+mypy-all = { cmd = "mypy -p clarita --namespace-packages" }

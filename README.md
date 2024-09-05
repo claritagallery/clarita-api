@@ -22,32 +22,32 @@ See [.env.example](.env.example) for all possible environment values.
 
 ## Install manually
 
-Clarita uses [pipenv](https://pipenv.pypa.io/) for dependency management.
+Clarita uses [rye](https://rye.astral.sh/) for dependency management.
 
 This project supports [direnv](https://direnv.net/).
-If you use it just run `direnv allow`.
+If you use it you need to [add support for the rye layout](https://github.com/direnv/direnv/wiki/Python#rye), then just run `direnv allow`.
 
 To install dependencies manually run:
 
-    pipenv install --deploy
+    rye sync
 
-Clarita should work on Python 3.10 or later, but it has been most tested on Python 3.10.
+Clarita should work on Python 3.10 or later, but it has been most tested on Python 3.12.
 
 ## Development
 
 Copy *.env.example* file as *.env*.
 Default values should work for local development.
 
-    pipenv install --dev
-    pipenv run dev
+    rye sync
+    rye run dev
 
-To run all linters:
+To run ruff linters:
 
-    pipenv run lint
+    rye lint
 
 To run tests:
 
-    pipenv run test
+    rye test
 
 Install the pre-commit hooks to lint code before every commit:
 

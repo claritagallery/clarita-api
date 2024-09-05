@@ -1,22 +1,18 @@
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.4.0
+  rev: v4.6.0
   hooks:
   - id: check-json
   - id: check-toml
   - id: check-yaml
   - id: check-merge-conflict
   - id: debug-statements
-- repo: https://github.com/psf/black
-  rev: 23.3.0
-  hooks:
-  - id: black
-    exclude: migrations
-    args: [--check,--config=pyproject.toml]
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.0.277
+  rev: v0.6.3
   hooks:
     - id: ruff
+      args: [ --fix ]
+    - id: ruff-format
 - repo: local
   hooks:
     - id: mypy

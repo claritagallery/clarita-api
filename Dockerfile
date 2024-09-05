@@ -8,33 +8,14 @@ ENV PYTHONFAULTHANDLER 1
 
 # create and switch to a new user, running as root is insecure!
 RUN useradd --create-home appuser
-WORKDIR /home/appuser
+WORKDIR /home/appuser/clarita
 USER appuser
 
-
-FROM base AS python-deps
-
-# install Python dependencies in /home/appuser/.local/
-ENV PIP_USER 1
-ENV PIP_NO_CACHE_DIR 1
-ENV PIPENV_SYSTEM 1
-
-# Install pipenv
-RUN pip install pipenv
-
-COPY Pipfile Pipfile.lock /tmp/
-RUN cd /tmp && pipenv install --deploy
-
-
-FROM base AS runtime
-
-# Copy virtual env from python-deps stage
-COPY --from=python-deps /home/appuser /home/appuser
+COPY requirements.lock ./
+RUN pip install --no-cache-dir -r requirements.lock
 
 # Install application into container
-COPY . clarita/
-
-WORKDIR /home/appuser/clarita
+COPY . ./
 
 ENV DATABASE_MAIN_PATH /home/appuser/digikam_data/digikam4.db
 ENV DATABASE_THUMBNAIL_PATH /home/appuser/digikam_data/thumbnails-digikam.db

@@ -1,6 +1,6 @@
 from typing import Dict, List, Set
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 IgnoredRoots = Set[int]
 RootMap = Dict[int, str]
@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     # map paths of AlbumRoots to new locations
     # use when the location of actual files are different on the server running Clarita
     root_map: RootMap = {}
+
+    model_config = SettingsConfigDict(env_file=".env")
 
 
 settings = Settings()

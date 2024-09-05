@@ -3,8 +3,10 @@
 
 # ...except for dependencies and source
 !src/
-!Pipfile
-!Pipfile.lock
+!requirements.lock
 
 # ...except for this stuff inside src/ that we don't want
+**/__pycache__
 **/.mypy_cache
+**/.ropeproject
+**/
