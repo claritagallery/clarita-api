@@ -26,7 +26,7 @@ class PhotoShort(BaseModel):
     filename: str
     title: str
     date_and_time: datetime.datetime | None = None
-    rating: int
+    rating: int | None
     thumb_hash: str
 
 
