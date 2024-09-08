@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import FastAPI, Query
+from fastapi import Depends, FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.requests import Request
 from fastapi.responses import FileResponse, JSONResponse, Response
@@ -33,10 +33,14 @@ async def does_not_exist_exception_handler(request: Request, exc: DoesNotExist):
     )
 
 
-digikam = DigikamSQLite(
-    settings.database_main_path,
-    settings.database_thumbnail_path,
-)
+async def get_digikam():
+    digikam = DigikamSQLite(settings.database_main_path)
+    try:
+        # DB connections are established on demand when first digikam method is called
+        yield digikam
+    finally:
+        # make sure DB connections get closed
+        await digikam.close()
 
 
 @app.get("/api/v1/albums")
@@ -45,17 +49,25 @@ async def albums(
     offset: Annotated[int, Query(ge=0)] = 0,
     parent: Annotated[int | None, Query(ge=0)] = None,
     order: Annotated[AlbumOrder, Query()] = AlbumOrder.titleAsc,
+    digikam: DigikamSQLite = Depends(get_digikam),
 ) -> models.AlbumList:
     return await digikam.albums(limit, offset, order, settings.ignored_roots, parent)
 
 
 @app.get("/api/v1/albums/{album_id}")
-async def album(album_id: int) -> models.AlbumFull:
+async def album(
+    album_id: int,
+    digikam: DigikamSQLite = Depends(get_digikam),
+) -> models.AlbumFull:
     return await digikam.album(album_id, settings.ignored_roots)
 
 
 @app.get("/api/v1/albums/{album_id}/photos/{photo_id}")
-async def photo_in_album(album_id: int, photo_id: int) -> models.PhotoFull:
+async def photo_in_album(
+    album_id: int,
+    photo_id: int,
+    digikam: DigikamSQLite = Depends(get_digikam),
+) -> models.PhotoFull:
     return await digikam.photo_in_album(album_id, photo_id, settings.ignored_roots)
 
 
@@ -65,17 +77,26 @@ async def photos(
     limit: Annotated[int, Query(ge=1, le=100)] = 100,
     offset: Annotated[int, Query(ge=0)] = 0,
     order: Annotated[PhotoOrder, Query()] = PhotoOrder.dateAndTimeAsc,
+    digikam: DigikamSQLite = Depends(get_digikam),
 ) -> models.PhotoList:
     return await digikam.photos(limit, offset, order, settings.ignored_roots, album)
 
 
 @app.get("/api/v1/photos/{photo_id}")
-async def photo(photo_id: int) -> models.PhotoFull:
+async def photo(
+    photo_id: int,
+    digikam: DigikamSQLite = Depends(get_digikam),
+) -> models.PhotoFull:
     return await digikam.photo(photo_id, settings.ignored_roots)
 
 
 @app.get("/api/v1/photos/{photo_id}/file", response_class=FileResponse)
-async def photo_file(photo_id: int, request: Request, response: Response):
+async def photo_file(
+    photo_id: int,
+    request: Request,
+    response: Response,
+    digikam: DigikamSQLite = Depends(get_digikam),
+):
     photo_file = await digikam.photo_file(
         photo_id, settings.ignored_roots, settings.root_map
     )
@@ -93,27 +114,12 @@ async def photo_file(photo_id: int, request: Request, response: Response):
     return FileResponse(photo_file.path)
 
 
-@app.get("/api/v1/thumbs/{thumb_hash}", response_class=FileResponse)
-async def thumb_file(thumb_hash: str, request: Request, response: Response):
-    thumb = await digikam.thumb_by_hash(thumb_hash)
-    if not thumb:
-        return Response(status_code=404)
-
-    if last_modified := thumb.last_modified:
-        response.headers["Last-Modified"] = last_modified.strftime(
-            HTTP_MODIFIED_DATE_FORMAT
-        )
-        if if_modified_since_raw := request.headers.get("If-Modified-Since"):
-            if if_modified_since := datetime.strptime(
-                if_modified_since_raw, HTTP_MODIFIED_DATE_FORMAT
-            ):
-                if last_modified >= if_modified_since:
-                    return Response(status_code=304)
-
-    if thumb.data.startswith(b"PGF"):
-        # FIXME: ignored by FastAPI, probably because it's not a proper mimetype
-        response.media_type = "image/pgf"
-
-    response.body = thumb.data
-    response.status_code = 200
-    return response
+@app.get("/api/v1/thumbs/{photo_id}", response_class=FileResponse)
+async def thumb_file(
+    photo_id: int,
+    request: Request,
+    response: Response,
+    digikam: DigikamSQLite = Depends(get_digikam),
+):
+    # TODO: implement thumbnail processing
+    return Response(status_code=404)

@@ -69,10 +69,3 @@ class AlbumList(ListResponse):
     """Response for a list of albums"""
 
     results: List[AlbumShort]
-
-
-class Thumbnail(BaseModel):
-    data: bytes
-    last_modified: datetime.datetime
-    orientation: int
-    unique_hash: str

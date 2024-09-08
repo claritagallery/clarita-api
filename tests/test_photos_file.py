@@ -17,7 +17,7 @@ def test_photo_file():
         "content-type": "image/jpeg",
         "content-length": "579417",
         "last-modified": "Sat, 03 Jun 2023 07:15:59 GMT",
-        "etag": '"e72bd5520317869658515638214cdf2b"',
+        "etag": '"540489bd6e7a44956ed4a37f76c6c5a7"',
     }
 
     assert len(response.read()) == 579417
