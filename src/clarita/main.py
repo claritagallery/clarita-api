@@ -51,7 +51,7 @@ async def albums(
     order: Annotated[AlbumOrder, Query()] = AlbumOrder.titleAsc,
     digikam: DigikamSQLite = Depends(get_digikam),
 ) -> models.AlbumList:
-    return await digikam.albums(limit, offset, order, settings.ignored_roots, parent)
+    return await digikam.albums(limit, offset, order, settings.root_map, parent)
 
 
 @app.get("/api/v1/albums/{album_id}")
@@ -59,7 +59,7 @@ async def album(
     album_id: int,
     digikam: DigikamSQLite = Depends(get_digikam),
 ) -> models.AlbumFull:
-    return await digikam.album(album_id, settings.ignored_roots)
+    return await digikam.album(album_id, settings.root_map)
 
 
 @app.get("/api/v1/albums/{album_id}/photos/{photo_id}")
@@ -68,7 +68,7 @@ async def photo_in_album(
     photo_id: int,
     digikam: DigikamSQLite = Depends(get_digikam),
 ) -> models.PhotoFull:
-    return await digikam.photo_in_album(album_id, photo_id, settings.ignored_roots)
+    return await digikam.photo_in_album(album_id, photo_id, settings.root_map)
 
 
 @app.get("/api/v1/photos")
@@ -79,7 +79,7 @@ async def photos(
     order: Annotated[PhotoOrder, Query()] = PhotoOrder.dateAndTimeAsc,
     digikam: DigikamSQLite = Depends(get_digikam),
 ) -> models.PhotoList:
-    return await digikam.photos(limit, offset, order, settings.ignored_roots, album)
+    return await digikam.photos(limit, offset, order, settings.root_map, album)
 
 
 @app.get("/api/v1/photos/{photo_id}")
@@ -87,7 +87,7 @@ async def photo(
     photo_id: int,
     digikam: DigikamSQLite = Depends(get_digikam),
 ) -> models.PhotoFull:
-    return await digikam.photo(photo_id, settings.ignored_roots)
+    return await digikam.photo(photo_id, settings.root_map)
 
 
 @app.get("/api/v1/photos/{photo_id}/file", response_class=FileResponse)
@@ -97,9 +97,7 @@ async def photo_file(
     response: Response,
     digikam: DigikamSQLite = Depends(get_digikam),
 ):
-    photo_file = await digikam.photo_file(
-        photo_id, settings.ignored_roots, settings.root_map
-    )
+    photo_file = await digikam.photo_file(photo_id, settings.root_map)
     last_modified = photo_file.last_modified
     if last_modified:
         response.headers["Last-Modified"] = last_modified.strftime(

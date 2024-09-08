@@ -1,8 +1,7 @@
-from typing import Dict, List, Set
+from typing import Dict, List
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-IgnoredRoots = Set[int]
 RootMap = Dict[int, str]
 
 
@@ -16,10 +15,11 @@ class Settings(BaseSettings):
     loglevel_clarita: str = "INFO"
     loglevel_root: str = "INFO"
 
-    # ids of AlbumRoots to ignore
-    ignored_roots: IgnoredRoots = set()
-    # map paths of AlbumRoots to new locations
-    # use when the location of actual files are different on the server running Clarita
+    # Map paths of Digikam DB AlbumRoots to potentially new locations.
+    # Only roots listed here will be served by Clarita, others will be filtered out.
+    # Use an empty string "" to use the DB value for the root.
+    # Otherwise value should be the absolute path for files in the system Clarita
+    # is running on.
     root_map: RootMap = {}
 
     model_config = SettingsConfigDict(env_file=".env")

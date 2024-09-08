@@ -5,7 +5,7 @@ from typing import List
 
 from aiosqlite import Connection
 
-from ..config import IgnoredRoots
+from ..config import RootMap
 from ..exceptions import DoesNotExist, InvalidResult
 from ..models import AlbumFull, AlbumList, AlbumShort
 from ..typehint import assert_never
@@ -19,7 +19,7 @@ async def list(
     limit: int,
     offset: int,
     order: AlbumOrder,
-    ignored_roots: IgnoredRoots,
+    root_map: RootMap,
     parent_album_id: int | None = None,
 ) -> AlbumList:
     """Retrieve a list of albums.
@@ -32,14 +32,14 @@ async def list(
 
     """
     logger.info(
-        "albums list limit=%s offset=%s ignored_roots=%r parent_album_id=%s",
+        "albums list limit=%s offset=%s root_map=%r parent_album_id=%s",
         limit,
         offset,
-        ignored_roots,
+        root_map,
         parent_album_id,
     )
+    root_map_str = ",".join(str(r) for r in root_map)
     params: List[int | str] = []
-    ignored_roots_str = ",".join(str(r) for r in ignored_roots) if ignored_roots else "()"
     if parent_album_id is None:
         # filter root albums
         query = """
@@ -47,9 +47,9 @@ WITH album AS (SELECT a.id, a.relativePath title, a.date, i.uniqueHash
                FROM Albums a
                LEFT JOIN Images i ON i.id = a.icon
                WHERE relativePath NOT LIKE '/%/%'
-                 AND albumRoot NOT IN (?))
+                 AND albumRoot IN (?))
 """
-        params.append(ignored_roots_str)
+        params.append(root_map_str)
     else:
         # Filter albums that are direct children of the given one.
         # relativePath of the parent will be something like /grandparent/parent, so
@@ -62,7 +62,7 @@ WITH album AS (SELECT a.id, a.relativePath title, a.date, i.uniqueHash
 WITH parent AS (SELECT p.id, p.relativePath path, p.albumRoot
                 FROM Albums p
                 WHERE p.id = ?
-                  AND albumRoot NOT IN (?)),
+                  AND albumRoot IN (?)),
      album AS (SELECT a.id,
                       SUBSTR(a.relativePath,
                       LENGTH(parent.path)+2) title,
@@ -77,7 +77,7 @@ WITH parent AS (SELECT p.id, p.relativePath path, p.albumRoot
                  )
 """
         params.append(parent_album_id)
-        params.append(ignored_roots_str)
+        params.append(root_map_str)
 
     if order is AlbumOrder.titleAsc:
         order_by = "title ASC"
@@ -127,9 +127,9 @@ OFFSET ?
     return AlbumList(results=albums, next=next_, total=total)
 
 
-async def get(db, album_id: int, ignored_roots: IgnoredRoots):
+async def get(db, album_id: int, root_map: RootMap):
     # get album details
-    logger.info("albums get album_id=%s ignored_roots=%r", album_id, ignored_roots)
+    logger.info("albums get album_id=%s root_map=%r", album_id, root_map)
     cursor = await db.execute(
         """
 SELECT a.relativePath,
@@ -140,9 +140,9 @@ SELECT a.relativePath,
 FROM Albums a
 LEFT JOIN Images i ON i.id = a.icon
 WHERE a.id=?
-  AND albumRoot NOT IN (?)
+  AND albumRoot IN (?)
         """,
-        (album_id, ",".join(str(r) for r in ignored_roots)),
+        (album_id, ",".join(str(r) for r in root_map)),
     )
     albumrow = await cursor.fetchone()
     if albumrow is None:

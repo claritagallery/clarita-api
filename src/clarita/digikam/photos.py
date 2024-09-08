@@ -3,7 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import List
 
-from ..config import IgnoredRoots, RootMap
+from ..config import RootMap
 from ..exceptions import DoesNotExist, InvalidResult
 from ..models import File, PhotoFull, PhotoList, PhotoShort
 from ..typehint import assert_never
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 # 1. Get basic data from Images table
 # 2. Get creation date from ImageInformation
 # 3. Get photo title from ImageComments (first one by language)
-# 4. Control that photo is not part of an excluded collection (see IGNORED_ROOTS)
+# 4. Control that photo is not part of an excluded collection (see ROOT_MAP)
 PHOTOS_QUERY = (
     """
 WITH numbered_titles AS (
@@ -48,7 +48,7 @@ WITH numbered_titles AS (
     JOIN ImageInformation info ON info.imageid=i.id
     JOIN Albums a ON a.id=i.album
    WHERE info.format='JPG'
-     AND a.albumRoot NOT IN (?)
+     AND a.albumRoot IN (?)
 )
 """
     % CaptionType.TITLE.value
@@ -60,14 +60,14 @@ async def list(
     limit: int,
     offset: int,
     order: PhotoOrder,
-    ignored_roots: IgnoredRoots,
+    root_map: RootMap,
     album_id: int | None = None,
 ) -> PhotoList:
     logger.info(
-        "photos list limit=%s offset=%s ignored_roots=%r album_id=%s",
+        "photos list limit=%s offset=%s root_map=%r album_id=%s",
         limit,
         offset,
-        ignored_roots,
+        root_map,
         album_id,
     )
     album_filter = "WHERE album=? " if album_id is not None else ""
@@ -90,7 +90,7 @@ async def list(
         + "ORDER BY %s " % order_by  # noqa: S608
         + "LIMIT ? OFFSET ?"
     )
-    params: List[str | int] = [",".join(str(r) for r in ignored_roots)]
+    params: List[str | int] = [",".join(str(r) for r in root_map)]
     if album_id is not None:
         params.append(album_id)
     cursor = await db.execute(retrieve_query, params + [limit, offset])
@@ -119,15 +119,15 @@ async def list(
     return PhotoList(results=photos, next=next_, total=total)
 
 
-async def get(db, album_id: int | None, photo_id: int, ignored_roots: IgnoredRoots):
+async def get(db, album_id: int | None, photo_id: int, root_map: RootMap):
     logger.info(
-        "photo get album_id=%s photo_id=%s ignored_roots=%r",
+        "photo get album_id=%s photo_id=%s root_map=%r",
         album_id,
         photo_id,
-        ignored_roots,
+        root_map,
     )
     retrieve_query = PHOTOS_QUERY + "SELECT * FROM photos WHERE id=? "
-    params = [",".join(str(r) for r in ignored_roots), photo_id]
+    params = [",".join(str(r) for r in root_map), photo_id]
     if album_id is not None:
         retrieve_query += "AND album=? "
         params.append(album_id)
@@ -177,7 +177,7 @@ LIMIT 1
         + ("AND album=? " if album_id is not None else "")
         + "ORDER BY date ASC LIMIT 1"
     )
-    prevnext_params = [",".join(str(r) for r in ignored_roots), date]
+    prevnext_params = [",".join(str(r) for r in root_map), date]
     if album_id is not None:
         prevnext_params.append(album_id)
     cursor = await db.execute(prev_query, prevnext_params)
@@ -222,13 +222,10 @@ LIMIT 1
     )
 
 
-async def get_filepath(
-    db, photo_id: int, ignored_roots: IgnoredRoots, root_map: RootMap
-) -> File:
+async def get_filepath(db, photo_id: int, root_map: RootMap) -> File:
     logger.info(
-        "photo get_filepath photo_id=%s ignored_roots=%r root_map=%r",
+        "photo get_filepath photo_id=%s root_map=%r",
         photo_id,
-        ignored_roots,
         root_map,
     )
     cursor = await db.execute(
@@ -242,9 +239,9 @@ FROM Images i
 JOIN Albums a ON a.id = i.album
 JOIN AlbumRoots r ON a.albumRoot
 WHERE i.id=?
-  AND a.albumRoot NOT IN (?)
+  AND a.albumRoot IN (?)
         """,
-        (photo_id, ",".join(str(r) for r in ignored_roots)),
+        (photo_id, ",".join(str(r) for r in root_map)),
     )
     row = await cursor.fetchone()
     if row is None:

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import aiosqlite
 
-from ..config import IgnoredRoots, RootMap
+from ..config import RootMap
 from ..models import File
 from ..types import AlbumOrder, PhotoOrder
 from . import albums, photos
@@ -62,7 +62,7 @@ class DigikamSQLite:
         limit: int,
         offset: int,
         order: AlbumOrder,
-        ignored_roots: IgnoredRoots,
+        root_map: RootMap,
         parent_album_id: int | None = None,
     ):
         assert self.conn is not None  # silence mypy
@@ -71,14 +71,14 @@ class DigikamSQLite:
             limit=limit,
             offset=offset,
             order=order,
-            ignored_roots=ignored_roots,
+            root_map=root_map,
             parent_album_id=parent_album_id,
         )
 
     @require_connection
-    async def album(self, album_id: int, ignored_roots: IgnoredRoots):
+    async def album(self, album_id: int, root_map: RootMap):
         assert self.conn is not None  # silence mypy
-        return await albums.get(self.conn, album_id, ignored_roots=ignored_roots)
+        return await albums.get(self.conn, album_id, root_map=root_map)
 
     @require_connection
     async def photos(
@@ -86,27 +86,23 @@ class DigikamSQLite:
         limit: int,
         offset: int,
         order: PhotoOrder,
-        ignored_roots: IgnoredRoots,
+        root_map: RootMap,
         album_id: int | None,
     ):
         assert self.conn is not None  # silence mypy
-        return await photos.list(self.conn, limit, offset, order, ignored_roots, album_id)
+        return await photos.list(self.conn, limit, offset, order, root_map, album_id)
 
     @require_connection
-    async def photo(self, photo_id: int, ignored_roots: IgnoredRoots):
+    async def photo(self, photo_id: int, root_map: RootMap):
         assert self.conn is not None  # silence mypy
-        return await photos.get(self.conn, None, photo_id, ignored_roots)
+        return await photos.get(self.conn, None, photo_id, root_map)
 
     @require_connection
-    async def photo_in_album(
-        self, album_id: int, photo_id: int, ignored_roots: IgnoredRoots
-    ):
+    async def photo_in_album(self, album_id: int, photo_id: int, root_map: RootMap):
         assert self.conn is not None  # silence mypy
-        return await photos.get(self.conn, album_id, photo_id, ignored_roots)
+        return await photos.get(self.conn, album_id, photo_id, root_map)
 
     @require_connection
-    async def photo_file(
-        self, photo_id: int, ignored_roots: IgnoredRoots, root_map: RootMap
-    ) -> File:
+    async def photo_file(self, photo_id: int, root_map: RootMap) -> File:
         assert self.conn is not None  # silence mypy
-        return await photos.get_filepath(self.conn, photo_id, ignored_roots, root_map)
+        return await photos.get_filepath(self.conn, photo_id, root_map)
