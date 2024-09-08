@@ -40,7 +40,6 @@ WITH numbered_titles AS (
          i.name as filename,
          d.comment as title,
          info.creationDate as date,
-         i.uniqueHash as thumbHash,
          i.album as album,
          info.rating as rating
     FROM Images i
@@ -102,8 +101,7 @@ async def list(
                 filename=row[1],
                 title=row[2] or row[1],
                 date_and_time=row[3],
-                thumb_hash=row[4],
-                rating=row[6],
+                rating=row[5],
             )
         )
     await cursor.close()
@@ -139,8 +137,7 @@ async def get(db, album_id: int | None, photo_id: int, root_map: RootMap):
     filename = row[1]
     title = row[2] or row[1]
     date = row[3]
-    thumb_hash = row[4]
-    rating = row[6]
+    rating = row[5]
 
     # retrieve captions (ImageComments table)
     # there can be multiple captions, on different languages
@@ -189,8 +186,7 @@ LIMIT 1
             filename=row[1],
             title=row[2] or row[1],
             date_and_time=row[3],
-            thumb_hash=row[4],
-            rating=row[6],
+            rating=row[5],
         )
     cursor = await db.execute(next_query, prevnext_params)
     row = await cursor.fetchone()
@@ -201,8 +197,7 @@ LIMIT 1
             filename=row[1],
             title=row[2] or row[1],
             date_and_time=row[3],
-            thumb_hash=row[4],
-            rating=row[6],
+            rating=row[5],
         )
 
     await cursor.close()
@@ -213,7 +208,6 @@ LIMIT 1
         title=title,
         date_and_time=date,
         rating=rating,
-        thumb_hash=thumb_hash,
         image_url=f"/api/v1/photos/{photo_id}/file",
         description=description,
         breadcrumbs=breadcrumbs,

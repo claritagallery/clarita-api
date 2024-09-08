@@ -43,9 +43,8 @@ async def list(
     if parent_album_id is None:
         # filter root albums
         query = """
-WITH album AS (SELECT a.id, a.relativePath title, a.date, i.uniqueHash
+WITH album AS (SELECT a.id, a.relativePath title, a.date, a.icon
                FROM Albums a
-               LEFT JOIN Images i ON i.id = a.icon
                WHERE relativePath NOT LIKE '/%/%'
                  AND albumRoot IN (?))
 """
@@ -67,9 +66,8 @@ WITH parent AS (SELECT p.id, p.relativePath path, p.albumRoot
                       SUBSTR(a.relativePath,
                       LENGTH(parent.path)+2) title,
                       a.date,
-                      i.uniqueHash
+                      a.icon
                FROM Albums a, parent
-               LEFT JOIN Images i ON i.id = a.icon
                WHERE INSTR(a.relativePath, parent.path) = 1
                  AND INSTR(title, '/') = 0
                  AND a.id <> parent.id
@@ -93,7 +91,7 @@ WITH parent AS (SELECT p.id, p.relativePath path, p.albumRoot
     retrieve_query = (
         query
         + """
-SELECT id, title, date, uniqueHash
+SELECT id, title, date, icon
 FROM album
 ORDER BY %s
 LIMIT ?
@@ -109,7 +107,7 @@ OFFSET ?
                 id=str(row[0]),
                 title=path.basename(row[1]),
                 date=date.fromisoformat(row[2]),
-                thumb_hash=row[3],
+                thumb_id=None if row[3] is None else str(row[3]),
             )
         )
     await cursor.close()
@@ -136,9 +134,8 @@ SELECT a.relativePath,
        a.date,
        COALESCE(a.caption, '') as caption,
        COALESCE(a.collection, '') as collection,
-       i.uniqueHash
+       a.icon
 FROM Albums a
-LEFT JOIN Images i ON i.id = a.icon
 WHERE a.id=?
   AND albumRoot IN (?)
         """,
@@ -155,7 +152,7 @@ WHERE a.id=?
         date=date.fromisoformat(albumrow[1]),
         description=albumrow[2],
         breadcrumbs=breadcrumbs,
-        thumb_hash=albumrow[4],
+        thumb_id=None if albumrow[4] is None else str(albumrow[4]),
     )
 
     await cursor.close()

@@ -26,7 +26,6 @@ def test_photo():
             "title": "Icecream!",
             "date_and_time": "2021-10-09T16:36:17",
             "rating": 5,
-            "thumb_hash": "99c7ca6f440e843be08b5328223c9f21",
         },
         "prev": {
             "id": "10",
@@ -34,9 +33,7 @@ def test_photo():
             "title": "04.jpg",
             "date_and_time": "2021-06-25T16:12:39",
             "rating": 5,
-            "thumb_hash": "88ef7a69691f6d965df146a96a155eef",
         },
         "rating": 5,
-        "thumb_hash": "9fa1106d25b7701e4b0b000804924dca",
         "title": "Icecream!",
     }

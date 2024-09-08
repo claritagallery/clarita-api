@@ -11,16 +11,11 @@ def test_albums_root():
     assert response.json() == {
         "next": None,
         "results": [
-            {"date": "2023-05-29", "id": "1", "title": "", "thumb_hash": None},
-            {"date": "2019-01-01", "id": "2", "title": "Album 1", "thumb_hash": None},
-            {"date": "2019-02-02", "id": "3", "title": "Album 2", "thumb_hash": None},
-            {
-                "date": "2019-03-03",
-                "id": "4",
-                "title": "Album 3",
-                "thumb_hash": "eeb4f6bcbcc77fad1e43d0da6dabdc09",
-            },
-            {"date": "2019-04-04", "id": "10", "title": "Album 4", "thumb_hash": None},
+            {"date": "2023-05-29", "id": "1", "title": "", "thumb_id": None},
+            {"date": "2019-01-01", "id": "2", "title": "Album 1", "thumb_id": None},
+            {"date": "2019-02-02", "id": "3", "title": "Album 2", "thumb_id": None},
+            {"date": "2019-03-03", "id": "4", "title": "Album 3", "thumb_id": "25"},
+            {"date": "2019-04-04", "id": "10", "title": "Album 4", "thumb_id": None},
         ],
         "total": 5,
     }
@@ -32,13 +27,8 @@ def test_albums_for_parent_depth_1():
     assert response.json() == {
         "next": None,
         "results": [
-            {
-                "date": "2020-01-01",
-                "id": "5",
-                "title": "Album 1.1",
-                "thumb_hash": "99c7ca6f440e843be08b5328223c9f21",
-            },
-            {"date": "2021-01-01", "id": "6", "title": "Album 1.2", "thumb_hash": None},
+            {"date": "2020-01-01", "id": "5", "title": "Album 1.1", "thumb_id": "2"},
+            {"date": "2021-01-01", "id": "6", "title": "Album 1.2", "thumb_id": None},
         ],
         "total": 2,
     }
@@ -50,14 +40,9 @@ def test_albums_for_parent_depth_2():
     assert response.json() == {
         "next": None,
         "results": [
-            {
-                "date": "2020-01-01",
-                "id": "7",
-                "title": "Album 1.1.1",
-                "thumb_hash": "88ef7a69691f6d965df146a96a155eef",
-            },
-            {"date": "2020-02-02", "id": "8", "title": "Album 1.1.2", "thumb_hash": None},
-            {"date": "2020-03-03", "id": "9", "title": "Album 1.1.3", "thumb_hash": None},
+            {"date": "2020-01-01", "id": "7", "title": "Album 1.1.1", "thumb_id": "10"},
+            {"date": "2020-02-02", "id": "8", "title": "Album 1.1.2", "thumb_id": None},
+            {"date": "2020-03-03", "id": "9", "title": "Album 1.1.3", "thumb_id": None},
         ],
         "total": 3,
     }
@@ -89,16 +74,11 @@ def test_albums_order_title_asc():
     assert response.json() == {
         "next": None,
         "results": [
-            {"date": "2023-05-29", "id": "1", "title": "", "thumb_hash": None},
-            {"date": "2019-01-01", "id": "2", "title": "Album 1", "thumb_hash": None},
-            {"date": "2019-02-02", "id": "3", "title": "Album 2", "thumb_hash": None},
-            {
-                "date": "2019-03-03",
-                "id": "4",
-                "title": "Album 3",
-                "thumb_hash": "eeb4f6bcbcc77fad1e43d0da6dabdc09",
-            },
-            {"date": "2019-04-04", "id": "10", "title": "Album 4", "thumb_hash": None},
+            {"date": "2023-05-29", "id": "1", "title": "", "thumb_id": None},
+            {"date": "2019-01-01", "id": "2", "title": "Album 1", "thumb_id": None},
+            {"date": "2019-02-02", "id": "3", "title": "Album 2", "thumb_id": None},
+            {"date": "2019-03-03", "id": "4", "title": "Album 3", "thumb_id": "25"},
+            {"date": "2019-04-04", "id": "10", "title": "Album 4", "thumb_id": None},
         ],
         "total": 5,
     }
@@ -110,16 +90,11 @@ def test_albums_order_title_desc():
     assert response.json() == {
         "next": None,
         "results": [
-            {"date": "2019-04-04", "id": "10", "title": "Album 4", "thumb_hash": None},
-            {
-                "date": "2019-03-03",
-                "id": "4",
-                "title": "Album 3",
-                "thumb_hash": "eeb4f6bcbcc77fad1e43d0da6dabdc09",
-            },
-            {"date": "2019-02-02", "id": "3", "title": "Album 2", "thumb_hash": None},
-            {"date": "2019-01-01", "id": "2", "title": "Album 1", "thumb_hash": None},
-            {"date": "2023-05-29", "id": "1", "title": "", "thumb_hash": None},
+            {"date": "2019-04-04", "id": "10", "title": "Album 4", "thumb_id": None},
+            {"date": "2019-03-03", "id": "4", "title": "Album 3", "thumb_id": "25"},
+            {"date": "2019-02-02", "id": "3", "title": "Album 2", "thumb_id": None},
+            {"date": "2019-01-01", "id": "2", "title": "Album 1", "thumb_id": None},
+            {"date": "2023-05-29", "id": "1", "title": "", "thumb_id": None},
         ],
         "total": 5,
     }
@@ -131,16 +106,11 @@ def test_albums_order_date_asc():
     assert response.json() == {
         "next": None,
         "results": [
-            {"date": "2019-01-01", "id": "2", "title": "Album 1", "thumb_hash": None},
-            {"date": "2019-02-02", "id": "3", "title": "Album 2", "thumb_hash": None},
-            {
-                "date": "2019-03-03",
-                "id": "4",
-                "title": "Album 3",
-                "thumb_hash": "eeb4f6bcbcc77fad1e43d0da6dabdc09",
-            },
-            {"date": "2019-04-04", "id": "10", "title": "Album 4", "thumb_hash": None},
-            {"date": "2023-05-29", "id": "1", "title": "", "thumb_hash": None},
+            {"date": "2019-01-01", "id": "2", "title": "Album 1", "thumb_id": None},
+            {"date": "2019-02-02", "id": "3", "title": "Album 2", "thumb_id": None},
+            {"date": "2019-03-03", "id": "4", "title": "Album 3", "thumb_id": "25"},
+            {"date": "2019-04-04", "id": "10", "title": "Album 4", "thumb_id": None},
+            {"date": "2023-05-29", "id": "1", "title": "", "thumb_id": None},
         ],
         "total": 5,
     }
@@ -152,16 +122,11 @@ def test_albums_order_date_desc():
     assert response.json() == {
         "next": None,
         "results": [
-            {"date": "2023-05-29", "id": "1", "title": "", "thumb_hash": None},
-            {"date": "2019-04-04", "id": "10", "title": "Album 4", "thumb_hash": None},
-            {
-                "date": "2019-03-03",
-                "id": "4",
-                "title": "Album 3",
-                "thumb_hash": "eeb4f6bcbcc77fad1e43d0da6dabdc09",
-            },
-            {"date": "2019-02-02", "id": "3", "title": "Album 2", "thumb_hash": None},
-            {"date": "2019-01-01", "id": "2", "title": "Album 1", "thumb_hash": None},
+            {"date": "2023-05-29", "id": "1", "title": "", "thumb_id": None},
+            {"date": "2019-04-04", "id": "10", "title": "Album 4", "thumb_id": None},
+            {"date": "2019-03-03", "id": "4", "title": "Album 3", "thumb_id": "25"},
+            {"date": "2019-02-02", "id": "3", "title": "Album 2", "thumb_id": None},
+            {"date": "2019-01-01", "id": "2", "title": "Album 1", "thumb_id": None},
         ],
         "total": 5,
     }
