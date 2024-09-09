@@ -1,15 +1,17 @@
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import List
+from typing import TYPE_CHECKING, List
 
-from ..config import RootMap
 from ..exceptions import DoesNotExist, InvalidResult
 from ..models import File, PhotoFull, PhotoList, PhotoShort
 from ..typehint import assert_never
 from ..types import PhotoOrder
-from .albums import get_breadcrumbs
 from .constants import CaptionType
+
+if TYPE_CHECKING:
+    from .db import DigikamSQLite
+
 
 DIGIKAM_DEFAULT_LANGUAGE = "x-default"
 
@@ -55,18 +57,17 @@ WITH numbered_titles AS (
 
 
 async def list(
-    db,
+    digikam: "DigikamSQLite",
     limit: int,
     offset: int,
     order: PhotoOrder,
-    root_map: RootMap,
     album_id: int | None = None,
 ) -> PhotoList:
     logger.info(
         "photos list limit=%s offset=%s root_map=%r album_id=%s",
         limit,
         offset,
-        root_map,
+        digikam.root_map,
         album_id,
     )
     album_filter = "WHERE album=? " if album_id is not None else ""
@@ -89,10 +90,11 @@ async def list(
         + "ORDER BY %s " % order_by  # noqa: S608
         + "LIMIT ? OFFSET ?"
     )
-    params: List[str | int] = [",".join(str(r) for r in root_map)]
+    params: List[str | int] = [",".join(str(r) for r in digikam.root_map)]
     if album_id is not None:
         params.append(album_id)
-    cursor = await db.execute(retrieve_query, params + [limit, offset])
+    conn = await digikam.connect_main_db()
+    cursor = await conn.execute(retrieve_query, params + [limit, offset])
     photos = []
     async for row in cursor:
         photos.append(
@@ -106,7 +108,8 @@ async def list(
         )
     await cursor.close()
     count_query = PHOTOS_QUERY + "SELECT COUNT(*) FROM photos " + album_filter
-    cursor = await db.execute(count_query, params)
+    conn = await digikam.connect_main_db()
+    cursor = await conn.execute(count_query, params)
     row = await cursor.fetchone()
     if row is None:
         raise InvalidResult()
@@ -117,19 +120,20 @@ async def list(
     return PhotoList(results=photos, next=next_, total=total)
 
 
-async def get(db, album_id: int | None, photo_id: int, root_map: RootMap):
+async def get(digikam: "DigikamSQLite", album_id: int | None, photo_id: int):
     logger.info(
         "photo get album_id=%s photo_id=%s root_map=%r",
         album_id,
         photo_id,
-        root_map,
+        digikam.root_map,
     )
     retrieve_query = PHOTOS_QUERY + "SELECT * FROM photos WHERE id=? "
-    params = [",".join(str(r) for r in root_map), photo_id]
+    params = [",".join(str(r) for r in digikam.root_map), photo_id]
     if album_id is not None:
         retrieve_query += "AND album=? "
         params.append(album_id)
-    cursor = await db.execute(retrieve_query, params)
+    conn = await digikam.connect_main_db()
+    cursor = await conn.execute(retrieve_query, params)
     row = await cursor.fetchone()
     if row is None:
         raise DoesNotExist()
@@ -142,7 +146,7 @@ async def get(db, album_id: int | None, photo_id: int, root_map: RootMap):
     # retrieve captions (ImageComments table)
     # there can be multiple captions, on different languages
     # default language ("x-default") will be passed as null
-    cursor = await db.execute(
+    cursor = await conn.execute(
         """
 SELECT language,
        comment
@@ -159,7 +163,7 @@ LIMIT 1
     logger.debug("Available descriptions for photo %s: %r", photo_id, rows)
     description = rows[0][1] if rows else ""
 
-    breadcrumbs = await get_breadcrumbs(db, album_id) if album_id else []
+    breadcrumbs = await digikam.breadcrumbs(album_id) if album_id else []
 
     # find previous and next photos by date
     prev_query = (
@@ -174,10 +178,10 @@ LIMIT 1
         + ("AND album=? " if album_id is not None else "")
         + "ORDER BY date ASC LIMIT 1"
     )
-    prevnext_params = [",".join(str(r) for r in root_map), date]
+    prevnext_params = [",".join(str(r) for r in digikam.root_map), date]
     if album_id is not None:
         prevnext_params.append(album_id)
-    cursor = await db.execute(prev_query, prevnext_params)
+    cursor = await conn.execute(prev_query, prevnext_params)
     row = await cursor.fetchone()
     prev = None
     if row is not None:
@@ -188,7 +192,7 @@ LIMIT 1
             date_and_time=row[3],
             rating=row[5],
         )
-    cursor = await db.execute(next_query, prevnext_params)
+    cursor = await conn.execute(next_query, prevnext_params)
     row = await cursor.fetchone()
     next_ = None
     if row is not None:
@@ -216,34 +220,38 @@ LIMIT 1
     )
 
 
-async def get_filepath(db, photo_id: int, root_map: RootMap) -> File:
+async def get_filepath(digikam: "DigikamSQLite", photo_id: int) -> File:
     logger.info(
         "photo get_filepath photo_id=%s root_map=%r",
         photo_id,
-        root_map,
+        digikam.root_map,
     )
-    cursor = await db.execute(
+    conn = await digikam.connect_main_db()
+    cursor = await conn.execute(
         """
-SELECT r.id,
-       r.specificPath,
+SELECT a.albumRoot,
        a.relativePath,
        i.name,
        i.modificationDate
 FROM Images i
 JOIN Albums a ON a.id = i.album
-JOIN AlbumRoots r ON a.albumRoot
 WHERE i.id=?
   AND a.albumRoot IN (?)
         """,
-        (photo_id, ",".join(str(r) for r in root_map)),
+        (photo_id, ",".join(str(r) for r in digikam.root_map)),
     )
     row = await cursor.fetchone()
     if row is None:
         raise DoesNotExist()
+
     root_id = row[0]
-    root_path = root_map.get(root_id, row[1])
-    path = Path(f"{root_path}{row[2]}/{row[3]}")
-    last_modified = datetime.fromisoformat(row[4]) if row[4] else None
+    root_path = await digikam.root_path(root_id)
+    if not root_path:
+        logger.warning("No root path for AlbumRoot id %s", root_id)
+        raise DoesNotExist()
+
+    path = Path(f"{root_path}{row[1]}/{row[2]}")
+    last_modified = datetime.fromisoformat(row[3]) if row[3] else None
     return File(
         path=path,
         last_modified=last_modified,

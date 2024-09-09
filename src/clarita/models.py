@@ -38,6 +38,15 @@ class AlbumShort(BaseModel):
     thumb_id: str | None = None
 
 
+class Root(BaseModel):
+    id: str
+    label: str
+    status: int
+    type: int
+    specific_path: str
+    case_sensitivity: int
+
+
 class PhotoFull(PhotoShort):
     """Photo to be used in detail views, with all details"""
 

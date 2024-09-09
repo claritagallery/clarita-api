@@ -34,7 +34,10 @@ async def does_not_exist_exception_handler(request: Request, exc: DoesNotExist):
 
 
 async def get_digikam():
-    digikam = DigikamSQLite(settings.database_main_path)
+    digikam = DigikamSQLite(
+        settings.database_main_path,
+        settings.root_map,
+    )
     try:
         # DB connections are established on demand when first digikam method is called
         yield digikam
@@ -51,7 +54,7 @@ async def albums(
     order: Annotated[AlbumOrder, Query()] = AlbumOrder.titleAsc,
     digikam: DigikamSQLite = Depends(get_digikam),
 ) -> models.AlbumList:
-    return await digikam.albums(limit, offset, order, settings.root_map, parent)
+    return await digikam.albums(limit, offset, order, parent)
 
 
 @app.get("/api/v1/albums/{album_id}")
@@ -59,7 +62,7 @@ async def album(
     album_id: int,
     digikam: DigikamSQLite = Depends(get_digikam),
 ) -> models.AlbumFull:
-    return await digikam.album(album_id, settings.root_map)
+    return await digikam.album(album_id)
 
 
 @app.get("/api/v1/albums/{album_id}/photos/{photo_id}")
@@ -68,7 +71,7 @@ async def photo_in_album(
     photo_id: int,
     digikam: DigikamSQLite = Depends(get_digikam),
 ) -> models.PhotoFull:
-    return await digikam.photo_in_album(album_id, photo_id, settings.root_map)
+    return await digikam.photo_in_album(album_id, photo_id)
 
 
 @app.get("/api/v1/photos")
@@ -79,7 +82,7 @@ async def photos(
     order: Annotated[PhotoOrder, Query()] = PhotoOrder.dateAndTimeAsc,
     digikam: DigikamSQLite = Depends(get_digikam),
 ) -> models.PhotoList:
-    return await digikam.photos(limit, offset, order, settings.root_map, album)
+    return await digikam.photos(limit, offset, order, album)
 
 
 @app.get("/api/v1/photos/{photo_id}")
@@ -87,7 +90,7 @@ async def photo(
     photo_id: int,
     digikam: DigikamSQLite = Depends(get_digikam),
 ) -> models.PhotoFull:
-    return await digikam.photo(photo_id, settings.root_map)
+    return await digikam.photo(photo_id)
 
 
 @app.get("/api/v1/photos/{photo_id}/file", response_class=FileResponse)
@@ -97,7 +100,7 @@ async def photo_file(
     response: Response,
     digikam: DigikamSQLite = Depends(get_digikam),
 ):
-    photo_file = await digikam.photo_file(photo_id, settings.root_map)
+    photo_file = await digikam.photo_file(photo_id)
     last_modified = photo_file.last_modified
     if last_modified:
         response.headers["Last-Modified"] = last_modified.strftime(

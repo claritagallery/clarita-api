@@ -1,25 +1,25 @@
 import logging
 from datetime import date
 from os import path
-from typing import List
+from typing import TYPE_CHECKING, List
 
-from aiosqlite import Connection
-
-from ..config import RootMap
 from ..exceptions import DoesNotExist, InvalidResult
 from ..models import AlbumFull, AlbumList, AlbumShort
 from ..typehint import assert_never
 from ..types import AlbumOrder
 
+if TYPE_CHECKING:
+    from .db import DigikamSQLite
+
+
 logger = logging.getLogger(__name__)
 
 
 async def list(
-    db: Connection,
+    digikam: "DigikamSQLite",
     limit: int,
     offset: int,
     order: AlbumOrder,
-    root_map: RootMap,
     parent_album_id: int | None = None,
 ) -> AlbumList:
     """Retrieve a list of albums.
@@ -35,10 +35,10 @@ async def list(
         "albums list limit=%s offset=%s root_map=%r parent_album_id=%s",
         limit,
         offset,
-        root_map,
+        digikam.root_map,
         parent_album_id,
     )
-    root_map_str = ",".join(str(r) for r in root_map)
+    root_map_str = ",".join(str(r) for r in digikam.root_map)
     params: List[int | str] = []
     if parent_album_id is None:
         # filter root albums
@@ -99,7 +99,8 @@ OFFSET ?
 """
         % order_by
     )
-    cursor = await db.execute(retrieve_query, params + [limit, offset])
+    conn = await digikam.connect_main_db()
+    cursor = await conn.execute(retrieve_query, params + [limit, offset])
     albums = []
     async for row in cursor:
         albums.append(
@@ -111,7 +112,7 @@ OFFSET ?
             )
         )
     await cursor.close()
-    cursor = await db.execute(
+    cursor = await conn.execute(
         query + " SELECT COUNT(*) FROM album",
         params,
     )
@@ -125,10 +126,11 @@ OFFSET ?
     return AlbumList(results=albums, next=next_, total=total)
 
 
-async def get(db, album_id: int, root_map: RootMap):
+async def get(digikam: "DigikamSQLite", album_id: int):
     # get album details
-    logger.info("albums get album_id=%s root_map=%r", album_id, root_map)
-    cursor = await db.execute(
+    logger.info("albums get album_id=%s root_map=%r", album_id, digikam.root_map)
+    conn = await digikam.connect_main_db()
+    cursor = await conn.execute(
         """
 SELECT a.relativePath,
        a.date,
@@ -139,13 +141,13 @@ FROM Albums a
 WHERE a.id=?
   AND albumRoot IN (?)
         """,
-        (album_id, ",".join(str(r) for r in root_map)),
+        (album_id, ",".join(str(r) for r in digikam.root_map)),
     )
     albumrow = await cursor.fetchone()
     if albumrow is None:
         raise DoesNotExist()
     full_path = albumrow[0]
-    breadcrumbs = await get_breadcrumbs(db, album_id)
+    breadcrumbs = await digikam.breadcrumbs(album_id)
     album = AlbumFull(
         id=str(album_id),
         title=path.basename(full_path),
@@ -159,10 +161,11 @@ WHERE a.id=?
     return album
 
 
-async def get_breadcrumbs(db, album_id: int) -> List[AlbumShort]:
+async def get_breadcrumbs(digikam: "DigikamSQLite", album_id: int) -> List[AlbumShort]:
     """Find all albums that are ancestors of the given one"""
     logger.info("albums get_breadcrumbs album_id=%s", album_id)
-    cursor = await db.execute(
+    conn = await digikam.connect_main_db()
+    cursor = await conn.execute(
         """
 WITH parent AS (SELECT p.relativePath path
                 FROM Albums p

@@ -1,27 +1,14 @@
 import logging
-from functools import wraps
 from pathlib import Path
 
 import aiosqlite
 
 from ..config import RootMap
-from ..models import File
+from ..models import File, Root
 from ..types import AlbumOrder, PhotoOrder
-from . import albums, photos
+from . import albums, photos, roots
 
 logger = logging.getLogger(__name__)
-
-
-def require_connection(func):
-    """Decorator to make sure there is a DB connection open"""
-
-    @wraps(func)
-    async def wrapper(self, *args, **kwargs):
-        if self.conn is None:
-            await self.connect_main_db()
-        return await func(self, *args, **kwargs)
-
-    return wrapper
 
 
 class DigikamSQLite:
@@ -31,21 +18,26 @@ class DigikamSQLite:
 
     conn: aiosqlite.Connection | None = None
 
-    def __init__(self, main_db_path: str | Path):
+    def __init__(self, main_db_path: str | Path, root_map: RootMap):
         self.main_db_path = main_db_path
         self.main_db_uri = "file:{}?mode=ro".format(self.main_db_path)
+        self.root_map = root_map
 
     async def connect_main_db(self):
         """Establish a new SQLite connection."""
+        if self.conn is not None:
+            logger.debug("Reusing existing Digikam DB connection %s", self.conn.name)
+            return self.conn
+
         logger.debug(
             "Attempting to connect to main Digikam SQLite DB %s", self.main_db_uri
         )
         try:
             self.conn = await aiosqlite.connect(self.main_db_uri, uri=True)
-            assert self.conn is not None
             logger.info("Connected to main Digikam SQLite DB %s", self.main_db_uri)
+            return self.conn
         except Exception as e:
-            logger.exception("Error connecting to Digikam SQLite DB:", e)
+            logger.exception("Error connecting to Digikam SQLite DB: ", e)
             raise e
 
     async def close(self):
@@ -56,53 +48,59 @@ class DigikamSQLite:
             )
             await self.conn.close()
 
-    @require_connection
     async def albums(
         self,
         limit: int,
         offset: int,
         order: AlbumOrder,
-        root_map: RootMap,
         parent_album_id: int | None = None,
     ):
-        assert self.conn is not None  # silence mypy
         return await albums.list(
-            self.conn,
+            self,
             limit=limit,
             offset=offset,
             order=order,
-            root_map=root_map,
             parent_album_id=parent_album_id,
         )
 
-    @require_connection
-    async def album(self, album_id: int, root_map: RootMap):
-        assert self.conn is not None  # silence mypy
-        return await albums.get(self.conn, album_id, root_map=root_map)
+    async def album(self, album_id: int):
+        return await albums.get(self, album_id)
 
-    @require_connection
+    async def breadcrumbs(self, album_id: int):
+        return await albums.get_breadcrumbs(self, album_id)
+
     async def photos(
         self,
         limit: int,
         offset: int,
         order: PhotoOrder,
-        root_map: RootMap,
         album_id: int | None,
     ):
-        assert self.conn is not None  # silence mypy
-        return await photos.list(self.conn, limit, offset, order, root_map, album_id)
+        return await photos.list(self, limit, offset, order, album_id)
 
-    @require_connection
-    async def photo(self, photo_id: int, root_map: RootMap):
-        assert self.conn is not None  # silence mypy
-        return await photos.get(self.conn, None, photo_id, root_map)
+    async def photo(self, photo_id: int):
+        return await photos.get(self, None, photo_id)
 
-    @require_connection
-    async def photo_in_album(self, album_id: int, photo_id: int, root_map: RootMap):
-        assert self.conn is not None  # silence mypy
-        return await photos.get(self.conn, album_id, photo_id, root_map)
+    async def photo_in_album(self, album_id: int, photo_id: int):
+        return await photos.get(self, album_id, photo_id)
 
-    @require_connection
-    async def photo_file(self, photo_id: int, root_map: RootMap) -> File:
-        assert self.conn is not None  # silence mypy
-        return await photos.get_filepath(self.conn, photo_id, root_map)
+    async def photo_file(self, photo_id: int) -> File:
+        return await photos.get_filepath(self, photo_id)
+
+    async def root_detail(self, root_id: int) -> Root:
+        """Get all details about an album root from DB"""
+        return await roots.get(self, root_id)
+
+    async def root_path(self, root_id: int) -> str | None:
+        """Get path for the given album root.
+
+        Will favor the value in root_map if present and not empty, otherwise it will be
+        retrieved from Digikam DB.
+
+        """
+        mapped_path = self.root_map.get(root_id)
+        if mapped_path:
+            return mapped_path
+
+        root = await self.root_detail(root_id)
+        return root.specific_path
