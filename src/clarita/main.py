@@ -11,6 +11,7 @@ from .config import settings
 from .digikam.db import DigikamSQLite
 from .exceptions import DoesNotExist
 from .http import HTTP_MODIFIED_DATE_FORMAT
+from .thumbs import get_thumbnail_file
 from .types import AlbumOrder, PhotoOrder
 
 log.setup_logging()
@@ -119,5 +120,5 @@ async def thumb_file(
     response: Response,
     digikam: DigikamSQLite = Depends(get_digikam),
 ):
-    # TODO: implement thumbnail processing
-    return Response(status_code=404)
+    thumb_file = await get_thumbnail_file(digikam, photo_id)
+    return FileResponse(thumb_file.path)
