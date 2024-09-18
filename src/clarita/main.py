@@ -115,7 +115,7 @@ async def photo_file(
     return FileResponse(photo_file.path)
 
 
-@app.get("/api/v1/thumbs/{photo_id}", response_class=FileResponse)
+@app.get("/api/v1/photos/{photo_id}/thumb", response_class=FileResponse)
 async def thumb_file(
     photo_id: int,
     request: Request,
