@@ -17,8 +17,7 @@ RUN pip install --no-cache-dir -r requirements.lock
 # Install application into container
 COPY . ./
 
-ENV DATABASE_MAIN_PATH /home/appuser/digikam_data/digikam4.db
-ENV DATABASE_THUMBNAIL_PATH /home/appuser/digikam_data/thumbnails-digikam.db
+ENV DIGIKAM_DB_DIR /home/appuser/digikam_data/
 ENV PORT 8000
 EXPOSE $PORT
 

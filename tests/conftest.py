@@ -11,7 +11,7 @@ def anyio_backend():
 
 @pytest.fixture
 async def digikam(settings):
-    digikam = DigikamSQLite(settings.database_main_path, settings.root_map)
+    digikam = DigikamSQLite(settings)
     yield digikam
     await digikam.close()
 

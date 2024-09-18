@@ -62,8 +62,7 @@ pythonpath = "src"
 
 [tool.pytest_env]
 CORS_ORIGINS = "[\"*\"]"
-DATABASE_MAIN_PATH = "tests/digikam_db/digikam4.db"
-DATABASE_THUMBNAIL_PATH = "tests/digikam_db/thumbnails-digikam.db"
+DIGIKAM_DB_DIR = "tests/digikam_db/"
 #ROOT_MAP = {value = "{\"1\": \"{PWD}/tests/images/\"}", transform = true}
 ROOT_MAP = "{\"1\": \"tests/images/\"}"
 

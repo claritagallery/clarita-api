@@ -3,7 +3,7 @@ from pathlib import Path
 
 import aiosqlite
 
-from ..config import RootMap
+from ..config import Settings
 from ..models import File, Root
 from ..types import AlbumOrder, PhotoOrder
 from . import albums, photos, roots
@@ -18,10 +18,10 @@ class DigikamSQLite:
 
     conn: aiosqlite.Connection | None = None
 
-    def __init__(self, main_db_path: str | Path, root_map: RootMap):
-        self.main_db_path = main_db_path
+    def __init__(self, settings: Settings):
+        self.main_db_path = Path(settings.digikam_db_dir) / self.MAIN_DB_NAME
         self.main_db_uri = "file:{}?mode=ro".format(self.main_db_path)
-        self.root_map = root_map
+        self.root_map = settings.root_map
 
     async def connect_main_db(self):
         """Establish a new SQLite connection."""

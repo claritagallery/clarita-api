@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Dict, List
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -6,10 +7,11 @@ RootMap = Dict[int, str]
 
 
 class Settings(BaseSettings):
+    clarita_data_dir: Path
+
     cors_origins: List[str]
 
-    database_main_path: str
-    database_thumbnail_path: str
+    digikam_db_dir: Path
 
     error_log_filename: str | None = None
     loglevel_clarita: str = "INFO"

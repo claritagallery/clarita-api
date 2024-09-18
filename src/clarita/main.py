@@ -34,10 +34,7 @@ async def does_not_exist_exception_handler(request: Request, exc: DoesNotExist):
 
 
 async def get_digikam():
-    digikam = DigikamSQLite(
-        settings.database_main_path,
-        settings.root_map,
-    )
+    digikam = DigikamSQLite(settings)
     try:
         # DB connections are established on demand when first digikam method is called
         yield digikam
